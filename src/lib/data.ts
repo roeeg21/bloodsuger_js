@@ -1,3 +1,51 @@
+export type CgmReading = {
+  Glucose: number;
+  Status: 'low' | 'ok' | 'high';
+  Trend:
+    | 'rising quickly'
+    | 'rising'
+    | 'steady'
+    | 'falling'
+    | 'falling quickly'
+    | 'rising slightly'
+    | 'falling slightly';
+  Time: string;
+};
+
+const trends: CgmReading['Trend'][] = [
+  'rising quickly',
+  'rising',
+  'steady',
+  'falling',
+  'falling quickly',
+  'rising slightly',
+  'falling slightly',
+];
+
+// Generates a single mock CGM reading
+export function generateCgmReading(): CgmReading {
+  const value = Math.floor(Math.random() * (260 - 50 + 1)) + 50; // Random value between 50 and 260
+
+  let status: CgmReading['Status'];
+  if (value < 60) {
+    status = 'low';
+  } else if (value > 250) {
+    status = 'high';
+  } else {
+    status = 'ok';
+  }
+
+  const trend = trends[Math.floor(Math.random() * trends.length)];
+  const time = new Date().toISOString();
+
+  return {
+    Glucose: value,
+    Status: status,
+    Trend: trend,
+    Time: time,
+  };
+}
+
 export type CgmDataPoint = {
   time: string;
   value: number;

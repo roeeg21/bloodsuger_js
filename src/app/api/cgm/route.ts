@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { generateCgmData } from '@/lib/data';
+import { generateCgmReading } from '@/lib/data';
 
 export async function GET() {
-  const cgmData = generateCgmData();
+  const cgmData = generateCgmReading();
   return NextResponse.json(cgmData);
 }

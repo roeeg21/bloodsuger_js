@@ -45,6 +45,10 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          foreground: 'hsl(var(--success-foreground))',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -88,10 +92,25 @@ export default {
             height: '0',
           },
         },
+        'pulse-border': {
+            '0%, 100%': { boxShadow: '0 0 30px hsl(var(--primary) / 0.4), inset 0 0 30px hsl(var(--primary) / 0.1)' },
+            '50%': { boxShadow: '0 0 40px hsl(var(--primary) / 0.6), inset 0 0 40px hsl(var(--primary) / 0.2)' },
+        },
+        rotate: {
+            'from': { transform: 'rotate(0deg)' },
+            'to': { transform: 'rotate(360deg)' },
+        },
+        'pulse-dot': {
+            '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+            '50%': { opacity: '0.5', transform: 'scale(1.2)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'pulse-border': 'pulse-border 3s ease-in-out infinite',
+        'rotate': 'rotate 10s linear infinite',
+        'pulse-dot': 'pulse-dot 2s infinite',
       },
       dropShadow: {
         'glow-primary': '0 0 8px hsl(var(--primary))',
