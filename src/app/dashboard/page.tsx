@@ -175,7 +175,7 @@ export default function DashboardPage() {
                         <div className="text-6xl font-bold">
                             {loading ? '--' : data?.Glucose}
                         </div>
-                        <div className="text-2xl text-slate-600 ml-2">
+                        <div className="text-4xl text-slate-600 ml-2">
                              {data?.Trend ? TREND_ARROWS[data.Trend] : ''}
                         </div>
                     </div>
