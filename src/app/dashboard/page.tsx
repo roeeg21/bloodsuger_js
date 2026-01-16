@@ -154,7 +154,7 @@ export default function DashboardPage() {
                             mg/dL
                         </div>
                     </div>
-                    <div className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-background/90 border-2 border-primary rounded-full flex items-center justify-center text-xl sm:text-2xl text-primary shadow-[0_0_20px_theme('colors.primary/50%'),_inset_0_0_10px_theme('colors.primary/20%')]">
+                    <div className="absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-background/90 border-2 border-primary rounded-full flex items-center justify-center text-xl sm:text-2xl text-primary shadow-[0_0_20px_theme('colors.primary/50%'),_inset_0_0_10px_theme('colors.primary/20%')]">
                         {data?.Trend ? TREND_ARROWS[data.Trend] : '→'}
                     </div>
                 </div>
