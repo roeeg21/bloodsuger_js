@@ -1,10 +1,19 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle, Bot, Download, Lightbulb, Loader2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  Bot,
+  Download,
+  Lightbulb,
+  Loader2,
+  Home,
+  Code,
+} from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ActionResult, compareReadingsAction, LogEntry } from './actions';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -91,7 +100,21 @@ export default function LogPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 grid gap-8">
+    <div className="p-4 md:p-8 grid gap-8 w-full max-w-6xl">
+      <div className="flex items-center justify-between -mt-4">
+        <Button asChild variant="outline">
+          <Link href="/dashboard">
+            <Home className="mr-2 h-4 w-4" />
+            Back to Monitor
+          </Link>
+        </Button>
+        <Button asChild variant="secondary">
+          <a href="/api/cgm" target="_blank" rel="noopener noreferrer">
+            <Code className="mr-2 h-4 w-4" />
+            View API
+          </a>
+        </Button>
+      </div>
       <div className="grid md:grid-cols-2 gap-8">
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader>
