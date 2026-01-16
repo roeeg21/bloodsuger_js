@@ -118,12 +118,12 @@ export default function DashboardPage() {
 
 
     return (
-        <div className="w-full max-w-sm relative z-10 font-headline">
+        <div className="w-full max-w-[380px] relative z-10 font-headline">
             <header className="text-center mb-6">
-                <h1 className="text-3xl font-black text-primary uppercase tracking-[3px]" style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))'}}>
+                <h1 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-[3px]" style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))'}}>
                     DEXCOM G7
                 </h1>
-                <p className="text-xs font-semibold text-primary uppercase tracking-[2px] opacity-70">
+                <p className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-[2px] opacity-70">
                     CGM SYSTEM
                 </p>
             </header>
@@ -143,18 +143,18 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            <div className="relative w-[280px] h-[280px] mx-auto mb-10 max-w-full">
+            <div className="relative w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] mx-auto mb-10 max-w-full">
                 <div className="w-full h-full rounded-full bg-[radial-gradient(circle_at_30%_30%,_theme('colors.slate.900/90%'),_#0a0e27)] border-2 border-primary flex items-center justify-center relative animate-pulse-border">
                     <div className={cn("absolute -top-px -left-px w-[calc(100%+4px)] h-[calc(100%+4px)] rounded-full border-2 border-transparent animate-rotate", statusClasses.ring)} style={{borderTopColor: `hsl(var(--${statusColorVar}))`, borderRightColor: `hsl(var(--${statusColorVar}))`, boxShadow: `0 0 30px hsl(var(--${statusColorVar}) / 0.6)`}} />
                     <div className="w-[85%] h-[85%] rounded-full bg-background/80 flex flex-col items-center justify-center border-2 border-primary/30 shadow-[inset_0_0_20px_theme('colors.primary/20%')]">
-                        <div className="text-7xl font-black text-primary leading-none mb-1 drop-shadow-glow-primary">
+                        <div className="text-6xl sm:text-7xl font-black text-primary leading-none mb-1 drop-shadow-glow-primary">
                             {loading ? '--' : data?.Glucose}
                         </div>
                         <div className="text-base font-bold text-primary/70 tracking-[2px]">
                             mg/dL
                         </div>
                     </div>
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 w-11 h-11 bg-background/90 border-2 border-primary rounded-full flex items-center justify-center text-2xl text-primary shadow-[0_0_20px_theme('colors.primary/50%'),_inset_0_0_10px_theme('colors.primary/20%')]">
+                    <div className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-background/90 border-2 border-primary rounded-full flex items-center justify-center text-xl sm:text-2xl text-primary shadow-[0_0_20px_theme('colors.primary/50%'),_inset_0_0_10px_theme('colors.primary/20%')]">
                         {data?.Trend ? TREND_ARROWS[data.Trend] : '→'}
                     </div>
                 </div>
@@ -185,11 +185,11 @@ export default function DashboardPage() {
             <div className="grid grid-cols-2 gap-4 mb-5">
                 <div className="bg-slate-900/80 rounded-xl p-5 text-center border-2 border-destructive shadow-[0_0_20px_theme('colors.destructive/30%'),_inset_0_0_20px_theme('colors.destructive/10%')]">
                     <div className="text-xs font-bold uppercase tracking-wider mb-2 text-destructive">Low Alert</div>
-                    <div className="text-3xl font-black text-destructive" style={{textShadow: '0 0 20px hsl(var(--destructive))'}}>60</div>
+                    <div className="text-2xl sm:text-3xl font-black text-destructive" style={{textShadow: '0 0 20px hsl(var(--destructive))'}}>60</div>
                 </div>
                  <div className="bg-slate-900/80 rounded-xl p-5 text-center border-2 border-accent shadow-[0_0_20px_theme('colors.accent/30%'),_inset_0_0_20px_theme('colors.accent/10%')]">
                     <div className="text-xs font-bold uppercase tracking-wider mb-2 text-accent">High Alert</div>
-                    <div className="text-3xl font-black text-accent" style={{textShadow: '0 0 20px hsl(var(--accent))'}}>250</div>
+                    <div className="text-2xl sm:text-3xl font-black text-accent" style={{textShadow: '0 0 20px hsl(var(--accent))'}}>250</div>
                 </div>
             </div>
 
