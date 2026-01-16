@@ -1,4 +1,4 @@
-import type {Config} from 'tailwindcss';
+import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: ['class'],
@@ -10,9 +10,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
-        code: ['monospace'],
+        body: ['Roboto Mono', 'monospace'],
+        headline: ['Orbitron', 'sans-serif'],
+        code: ['Roboto Mono', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -92,6 +92,10 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+      dropShadow: {
+        'glow-primary': '0 0 8px hsl(var(--primary))',
+        'glow-accent': '0 0 8px hsl(var(--accent))',
       },
     },
   },
