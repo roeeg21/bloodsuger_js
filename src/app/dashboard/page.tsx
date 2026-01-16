@@ -94,109 +94,138 @@ export default function DashboardPage() {
         }
     }, [data?.Time]);
 
-    const getStatusClasses = (status?: CgmReading['Status']) => {
-        if (!status) return { ring: 'border-primary', badge: 'bg-muted', text: 'text-primary' };
+    const getStatusBadgeClasses = (status?: CgmReading['Status']) => {
+        if (!status) return 'text-slate-600 bg-slate-100 border-slate-200';
         switch (status) {
-            case 'low': return { ring: 'border-destructive', badge: 'bg-destructive/10 border-destructive text-destructive', dot: 'bg-destructive', shadow: 'shadow-destructive/30' };
-            case 'high': return { ring: 'border-accent', badge: 'bg-accent/10 border-accent text-accent', dot: 'bg-accent', shadow: 'shadow-accent/30' };
+            case 'low': return 'text-red-600 bg-red-100 border-red-200';
+            case 'high': return 'text-amber-600 bg-amber-100 border-amber-200';
             case 'ok':
-            default: return { ring: 'border-success', badge: 'bg-success/10 border-success text-success', dot: 'bg-success', shadow: 'shadow-success/30' };
+            default: return 'text-green-600 bg-green-100 border-green-200';
         }
     };
-
-    const statusClasses = getStatusClasses(data?.Status);
     
-    const getStatusColorVariable = (status?: CgmReading['Status']) => {
+    const getStatusDialClasses = (status?: CgmReading['Status']) => {
+        if (!status) return {
+            border: 'border-slate-300',
+            bg: 'bg-slate-100',
+            text: 'text-slate-800',
+            pointer: 'border-l-slate-300'
+        };
         switch (status) {
-            case 'low': return 'destructive';
-            case 'high': return 'accent';
-            case 'ok': return 'success';
-            default: return 'primary';
+            case 'low': return {
+                border: 'border-red-400',
+                bg: 'bg-red-50',
+                text: 'text-red-900',
+                pointer: 'border-l-red-400'
+            };
+            case 'high': return {
+                border: 'border-amber-400',
+                bg: 'bg-amber-50',
+                text: 'text-amber-900',
+                pointer: 'border-l-amber-400'
+            };
+            case 'ok':
+            default: return {
+                border: 'border-green-400',
+                bg: 'bg-green-50',
+                text: 'text-green-900',
+                pointer: 'border-l-green-400'
+            };
         }
     }
-    const statusColorVar = getStatusColorVariable(data?.Status);
+
+    const statusBadgeClasses = getStatusBadgeClasses(data?.Status);
+    const statusDialClasses = getStatusDialClasses(data?.Status);
 
 
     return (
-        <div className="w-full max-w-[380px] relative z-10 font-headline">
+        <div className="w-full max-w-sm font-sans">
             <header className="text-center mb-6">
-                <h1 className="text-2xl sm:text-3xl font-black text-primary uppercase tracking-[3px]" style={{ textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary))'}}>
+                <h1 className="text-2xl font-bold text-slate-800">
                     DEXCOM G7
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-[2px] opacity-70">
+                <p className="text-xs text-slate-500 uppercase tracking-widest">
                     CGM SYSTEM
                 </p>
             </header>
 
-            <nav className="flex gap-3 mb-8 bg-slate-900/80 p-1.5 rounded-xl border-2 border-primary shadow-[0_0_20px_theme('colors.primary/30%'),_inset_0_0_20px_theme('colors.primary/10%')]">
-                <Link href="/dashboard" className={cn("flex-1 p-3 rounded-lg text-sm font-bold text-primary text-center uppercase tracking-wider transition-all hover:bg-primary/10 hover:shadow-[0_0_15px_theme('colors.primary/50%')]", { 'bg-primary/20 shadow-[0_0_20px_theme(\'colors.primary/60%\'),_inset_0_0_10px_theme(\'colors.primary/30%\')]': pathname.startsWith('/dashboard') })}>
+            <nav className="flex gap-2 mb-8 bg-slate-100 p-1 rounded-lg">
+                <Link href="/dashboard" className={cn("flex-1 py-2 px-4 rounded-md text-sm font-semibold text-center transition-colors", { 'bg-white shadow-sm text-slate-800': pathname.startsWith('/dashboard'), 'text-slate-600 hover:bg-slate-200': !pathname.startsWith('/dashboard') })}>
                     Monitor
                 </Link>
-                <Link href="/log" className={cn("flex-1 p-3 rounded-lg text-sm font-bold text-primary text-center uppercase tracking-wider transition-all hover:bg-primary/10 hover:shadow-[0_0_15px_theme('colors.primary/50%')]", { 'bg-primary/20 shadow-[0_0_20px_theme(\'colors.primary/60%\'),_inset_0_0_10px_theme(\'colors.primary/30%\')]': pathname.startsWith('/log') })}>
+                <Link href="/log" className={cn("flex-1 py-2 px-4 rounded-md text-sm font-semibold text-center transition-colors", { 'bg-white shadow-sm text-slate-800': pathname.startsWith('/log'), 'text-slate-600 hover:bg-slate-200': !pathname.startsWith('/log') })}>
                     Log
                 </Link>
             </nav>
 
             {error && (
-                <div className="bg-destructive/10 border-2 border-destructive text-destructive p-3.5 rounded-xl mb-5 text-center text-xs font-semibold shadow-[0_0_20px_theme('colors.destructive/30%')]">
+                <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-6 text-center text-sm">
                     {error}
                 </div>
             )}
 
-            <div className="relative w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] mx-auto mb-10 max-w-full">
-                <div className="w-full h-full rounded-full bg-[radial-gradient(circle_at_30%_30%,_theme('colors.slate.900/90%'),_#0a0e27)] border-2 border-primary flex items-center justify-center relative animate-pulse-border">
-                    <div className={cn("absolute -top-px -left-px w-[calc(100%+4px)] h-[calc(100%+4px)] rounded-full border-2 border-transparent animate-rotate", statusClasses.ring)} style={{borderTopColor: `hsl(var(--${statusColorVar}))`, borderRightColor: `hsl(var(--${statusColorVar}))`, boxShadow: `0 0 30px hsl(var(--${statusColorVar}) / 0.6)`}} />
-                    <div className="w-[85%] h-[85%] rounded-full bg-background/80 flex flex-col items-center justify-center border-2 border-primary/30 shadow-[inset_0_0_20px_theme('colors.primary/20%')]">
-                        <div className="text-6xl sm:text-7xl font-black text-primary leading-none mb-1" style={{ textShadow: '0 0 15px hsl(var(--primary)), 0 0 25px hsl(var(--primary))' }}>
+            <div className="relative w-56 h-56 mx-auto mb-10">
+                <div className={cn(
+                    "w-full h-full rounded-full border-[16px] flex flex-col items-center justify-center transition-colors",
+                    statusDialClasses.border,
+                    statusDialClasses.bg,
+                    statusDialClasses.text
+                    )}>
+                    <div className="flex items-baseline">
+                        <div className="text-6xl font-bold">
                             {loading ? '--' : data?.Glucose}
                         </div>
-                        <div className="text-base font-bold text-primary/70 tracking-[2px]">
-                            mg/dL
+                        <div className="text-2xl text-slate-600 ml-2">
+                             {data?.Trend ? TREND_ARROWS[data.Trend] : ''}
                         </div>
                     </div>
-                    <div className="absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-background/90 border-2 border-primary rounded-full flex items-center justify-center text-xl sm:text-2xl text-primary shadow-[0_0_20px_theme('colors.primary/50%'),_inset_0_0_10px_theme('colors.primary/20%')]">
-                        {data?.Trend ? TREND_ARROWS[data.Trend] : '→'}
+                    <div className="text-lg text-slate-500 mt-1">
+                        mg/dL
                     </div>
                 </div>
+                <div className={cn(
+                    "absolute top-1/2 -translate-y-1/2 w-0 h-0 border-y-[14px] border-y-transparent border-l-[14px] transition-colors",
+                    statusDialClasses.pointer,
+                    )} style={{ right: "-6px" }}></div>
             </div>
 
-            <div className="bg-slate-900/80 rounded-2xl p-6 mb-5 border-2 border-primary shadow-[0_0_20px_theme('colors.primary/30%'),_inset_0_0_20px_theme('colors.primary/5%')]">
-                 <div className="flex justify-between items-center py-3 border-b border-primary/20">
-                    <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Status</span>
-                    <div className={cn('inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border', statusClasses.badge)} style={{boxShadow: `0 0 15px hsl(var(--${statusColorVar}) / 0.4)`}}>
-                        <span className={cn('w-1.5 h-1.5 rounded-full animate-pulse-dot', statusClasses.dot)} style={{boxShadow: `0 0 10px hsl(var(--${statusColorVar}))`}}/>
+            <div className="bg-white rounded-xl p-1 border border-slate-200 shadow-sm mb-6">
+                 <div className="flex justify-between items-center p-3 border-b border-slate-200">
+                    <span className="text-sm font-medium text-slate-500">Status</span>
+                    <div className={cn('inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border', statusBadgeClasses)}>
+                        <span className={cn('w-2 h-2 rounded-full', statusBadgeClasses.replace('text-','bg-').replace('border-',''))}/>
                         <span>{loading ? 'Loading' : data?.Status || '--'}</span>
                     </div>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-primary/20">
-                    <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Trend</span>
-                    <span className="text-sm font-bold text-primary drop-shadow-[0_0_10px_theme('colors.primary/50%')] capitalize">{loading ? '--' : data?.Trend}</span>
+                <div className="flex justify-between items-center p-3 border-b border-slate-200">
+                    <span className="text-sm font-medium text-slate-500">Trend</span>
+                    <span className="text-sm font-semibold text-slate-700 capitalize">{loading ? '--' : data?.Trend}</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-primary/20">
-                    <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Last Reading</span>
-                    <span className="text-sm font-bold text-primary drop-shadow-[0_0_10px_theme('colors.primary/50%')]">{data?.Time ? new Date(data.Time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--'}</span>
+                <div className="flex justify-between items-center p-3 border-b border-slate-200">
+                    <span className="text-sm font-medium text-slate-500">Last Reading</span>
+                    <span className="text-sm font-semibold text-slate-700">{data?.Time ? new Date(data.Time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--'}</span>
                 </div>
-                <div className="flex justify-between items-center pt-3">
-                    <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">Time Since</span>
-                    <span className="text-sm font-bold text-primary drop-shadow-[0_0_10px_theme('colors.primary/50%')]">{loading ? '--' : timeSince}</span>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-5">
-                <div className="bg-slate-900/80 rounded-xl p-5 text-center border-2 border-destructive shadow-[0_0_20px_theme('colors.destructive/30%'),_inset_0_0_20px_theme('colors.destructive/10%')]">
-                    <div className="text-xs font-bold uppercase tracking-wider mb-2 text-destructive">Low Alert</div>
-                    <div className="text-2xl sm:text-3xl font-black text-destructive" style={{textShadow: '0 0 20px hsl(var(--destructive))'}}>60</div>
-                </div>
-                 <div className="bg-slate-900/80 rounded-xl p-5 text-center border-2 border-accent shadow-[0_0_20px_theme('colors.accent/30%'),_inset_0_0_20px_theme('colors.accent/10%')]">
-                    <div className="text-xs font-bold uppercase tracking-wider mb-2 text-accent">High Alert</div>
-                    <div className="text-2xl sm:text-3xl font-black text-accent" style={{textShadow: '0 0 20px hsl(var(--accent))'}}>250</div>
+                <div className="flex justify-between items-center p-3">
+                    <span className="text-sm font-medium text-slate-500">Time Since</span>
+                    <span className="text-sm font-semibold text-slate-700">{loading ? '--' : timeSince}</span>
                 </div>
             </div>
 
-            <button onClick={fetchGlucose} disabled={loading} className="w-full p-4 bg-slate-900/80 border-2 border-primary rounded-xl text-sm font-bold text-primary uppercase tracking-[2px] shadow-[0_0_20px_theme('colors.primary/30%')] transition-all hover:bg-primary/10 hover:shadow-[0_0_30px_theme('colors.primary/60%'),_inset_0_0_20px_theme('colors.primary/20%')] hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:pointer-events-none">
+            <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-white rounded-xl p-4 text-center border border-red-200 shadow-sm">
+                    <div className="text-xs font-semibold uppercase text-red-500">Low Alert</div>
+                    <div className="text-3xl font-bold text-red-600 mt-1">60</div>
+                </div>
+                 <div className="bg-white rounded-xl p-4 text-center border border-amber-200 shadow-sm">
+                    <div className="text-xs font-semibold uppercase text-amber-500">High Alert</div>
+                    <div className="text-3xl font-bold text-amber-600 mt-1">250</div>
+                </div>
+            </div>
+
+            <button onClick={fetchGlucose} disabled={loading} className="w-full py-3 px-4 bg-slate-800 text-white rounded-lg text-sm font-semibold transition-colors hover:bg-slate-700 disabled:bg-slate-400">
                 {loading ? 'Updating...' : 'Refresh Data'}
             </button>
-            <div className="text-center mt-5 text-xs text-primary/60 font-medium tracking-wider">
+            <div className="text-center mt-3 text-xs text-slate-500">
                 Last updated: {lastSync ? lastSync.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--'}
             </div>
         </div>

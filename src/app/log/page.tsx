@@ -116,9 +116,9 @@ export default function LogPage() {
         </Button>
       </div>
       <div className="grid md:grid-cols-2 gap-8">
-        <Card className="bg-card/50 backdrop-blur-sm">
+        <Card>
           <CardHeader>
-            <CardTitle className="font-headline">
+            <CardTitle>
               Manual Blood Sugar Log
             </CardTitle>
             <CardDescription>
@@ -150,7 +150,6 @@ export default function LogPage() {
                 <Button
                   type="submit"
                   disabled={isPending}
-                  className="bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   {isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -165,12 +164,12 @@ export default function LogPage() {
         </Card>
 
         <Card
-          className={`bg-card/50 backdrop-blur-sm transition-all duration-500 ${
+          className={`transition-all duration-500 ${
             lastResult ? 'opacity-100' : 'opacity-0'
           }`}
         >
           <CardHeader>
-            <CardTitle className="font-headline">AI Analysis</CardTitle>
+            <CardTitle>AI Analysis</CardTitle>
             <CardDescription>
               Comparison between your manual log and the latest CGM reading.
             </CardDescription>
@@ -185,15 +184,15 @@ export default function LogPage() {
               <div
                 className={`flex items-center gap-3 p-3 rounded-lg ${
                   lastResult.aiAnalysis.discrepancyDetected
-                    ? 'bg-destructive/20 text-destructive-foreground'
-                    : 'bg-green-500/20 text-green-300'
+                    ? 'bg-destructive/10 text-destructive'
+                    : 'bg-green-500/10 text-green-700'
                 }`}
               >
                 <AlertTriangle
                   className={
                     lastResult.aiAnalysis.discrepancyDetected
                       ? 'text-destructive'
-                      : 'text-green-400'
+                      : 'text-green-500'
                   }
                 />
                 <p className="font-bold">
@@ -204,16 +203,16 @@ export default function LogPage() {
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-bold text-primary">Analysis</h4>
+                <h4 className="font-bold text-slate-800">Analysis</h4>
                 <p className="text-sm text-muted-foreground">
                   {lastResult.aiAnalysis.discrepancyExplanation}
                 </p>
               </div>
-              <div className="flex items-start gap-3 bg-primary/10 p-3 rounded-lg">
-                <Lightbulb className="w-5 h-5 mt-1 text-primary flex-shrink-0" />
+              <div className="flex items-start gap-3 bg-blue-500/10 p-3 rounded-lg">
+                <Lightbulb className="w-5 h-5 mt-1 text-blue-600 flex-shrink-0" />
                 <div>
-                  <h4 className="font-bold text-primary">Suggested Action</h4>
-                  <p className="text-sm text-primary/80">
+                  <h4 className="font-bold text-blue-700">Suggested Action</h4>
+                  <p className="text-sm text-blue-700/80">
                     {lastResult.aiAnalysis.suggestedAction}
                   </p>
                 </div>
@@ -228,10 +227,10 @@ export default function LogPage() {
         </Card>
       </div>
 
-      <Card className="bg-card/50 backdrop-blur-sm">
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
-            <CardTitle className="font-headline">Log History</CardTitle>
+            <CardTitle>Log History</CardTitle>
             <CardDescription>A record of your manual entries.</CardDescription>
           </div>
           <Button variant="outline" onClick={handleExport} disabled={logs.length === 0}>
@@ -256,7 +255,7 @@ export default function LogPage() {
               {logs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>{log.timestamp}</TableCell>
-                  <TableCell className="text-right font-bold text-accent">
+                  <TableCell className="text-right font-bold text-accent-foreground">
                     {log.manual}
                   </TableCell>
                   <TableCell className="text-right font-bold text-primary">
@@ -266,7 +265,7 @@ export default function LogPage() {
                     {log.discrepancy ? (
                       <span className="text-destructive">Discrepancy</span>
                     ) : (
-                      <span className="text-green-400">Consistent</span>
+                      <span className="text-green-600">Consistent</span>
                     )}
                   </TableCell>
                 </TableRow>
