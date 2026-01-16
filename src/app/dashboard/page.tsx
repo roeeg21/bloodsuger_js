@@ -147,7 +147,7 @@ export default function DashboardPage() {
                 <div className="w-full h-full rounded-full bg-[radial-gradient(circle_at_30%_30%,_theme('colors.slate.900/90%'),_#0a0e27)] border-2 border-primary flex items-center justify-center relative animate-pulse-border">
                     <div className={cn("absolute -top-px -left-px w-[calc(100%+4px)] h-[calc(100%+4px)] rounded-full border-2 border-transparent animate-rotate", statusClasses.ring)} style={{borderTopColor: `hsl(var(--${statusColorVar}))`, borderRightColor: `hsl(var(--${statusColorVar}))`, boxShadow: `0 0 30px hsl(var(--${statusColorVar}) / 0.6)`}} />
                     <div className="w-[85%] h-[85%] rounded-full bg-background/80 flex flex-col items-center justify-center border-2 border-primary/30 shadow-[inset_0_0_20px_theme('colors.primary/20%')]">
-                        <div className="text-6xl sm:text-7xl font-black text-primary leading-none mb-1 drop-shadow-glow-primary">
+                        <div className="text-6xl sm:text-7xl font-black text-primary leading-none mb-1" style={{ textShadow: '0 0 15px hsl(var(--primary)), 0 0 25px hsl(var(--primary))' }}>
                             {loading ? '--' : data?.Glucose}
                         </div>
                         <div className="text-base font-bold text-primary/70 tracking-[2px]">
