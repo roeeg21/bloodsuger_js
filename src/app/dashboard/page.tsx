@@ -191,12 +191,12 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 top-0 flex flex-col items-center",
+                        "absolute left-1/2 -translate-x-1/2 top-0 transform -translate-y-2 flex flex-col items-center",
                         statusDialClasses.text
                     )}>
-                        <ArrowUp className="h-6 w-6" />
+                        <ArrowUp className="h-10 w-10" />
                         {isQuickTrend && (
-                            <ArrowUp className="h-6 w-6 -mt-3" />
+                            <ArrowUp className="h-10 w-10 -mt-5" />
                         )}
                     </div>
                 </div>
