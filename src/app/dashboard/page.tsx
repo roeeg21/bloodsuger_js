@@ -35,23 +35,24 @@ function calculateTimeSince(timeString: string | null) {
     return `${diffHours} hours ago`;
 }
 
+// Arrow points down at 0 rotation
 const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
-            return 'rotate-45';
+            return 'rotate-135';
         case 'rising':
-            return 'rotate-0';
+            return 'rotate-180';
         case 'rising slightly':
-            return 'rotate-[22.5deg]';
+            return 'rotate-[157.5deg]';
         case 'steady':
             return 'hidden';
         case 'falling slightly':
-            return 'rotate-[157.5deg]';
+            return 'rotate-[22.5deg]';
         case 'falling':
-            return 'rotate-180';
+            return 'rotate-0';
         case 'falling quickly':
-            return 'rotate-135';
+            return 'rotate-45';
         default:
             return 'hidden';
     }
@@ -203,7 +204,7 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0",
+                        "absolute top-[-16px] left-1/2 -translate-x-1/2 w-0 h-0",
                         "border-x-[12px] border-x-transparent",
                         "border-b-[16px]",
                         statusDialClasses.arrow.replace('border-l-', 'border-b-')
@@ -211,7 +212,7 @@ export default function DashboardPage() {
 
                     {isQuickTrend && (
                         <div className={cn(
-                            "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-0 h-0",
+                            "absolute top-[-16px] left-1/2 -translate-x-1/2 -translate-y-1 w-0 h-0",
                             "border-x-[12px] border-x-transparent",
                             "border-b-[16px]",
                             statusDialClasses.arrow.replace('border-l-', 'border-b-')
