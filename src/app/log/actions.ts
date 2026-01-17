@@ -4,15 +4,19 @@ import { compareCgmWithManualLog, CompareCgmWithManualLogOutput } from '@/ai/flo
 import { getLiveCgmReading } from '@/lib/dexcom';
 import { z } from 'zod';
 
-const LogEntrySchema = z.object({
+const LogReadingSchema = z.object({
   manualValue: z.number().positive("Blood sugar value must be a positive number."),
+  diazoxideDose: z.number().positive("Diazoxide dose must be a positive number.").optional(),
 });
+
+export type LogReadingInput = z.infer<typeof LogReadingSchema>;
 
 export type LogEntry = {
     id: string;
     timestamp: string;
     manual: number;
     cgm: number;
+    diazoxideDose?: number;
     discrepancy: boolean;
     suggestion: string;
     analysis: string;
@@ -25,12 +29,13 @@ export type ActionResult = {
     error?: string;
 }
 
-export async function compareReadingsAction(manualValue: number): Promise<ActionResult> {
+export async function compareReadingsAction(input: LogReadingInput): Promise<ActionResult> {
 
-    const validation = LogEntrySchema.safeParse({ manualValue });
+    const validation = LogReadingSchema.safeParse(input);
     if (!validation.success) {
         return { success: false, error: validation.error.errors[0].message };
     }
+    const { manualValue, diazoxideDose } = input;
 
     try {
         const timestamp = new Date();
@@ -48,6 +53,7 @@ export async function compareReadingsAction(manualValue: number): Promise<Action
             timestamp: timestamp.toLocaleString(),
             manual: manualValue,
             cgm: cgmValue,
+            diazoxideDose,
             discrepancy: aiAnalysis.discrepancyDetected,
             suggestion: aiAnalysis.suggestedAction,
             analysis: aiAnalysis.discrepancyExplanation,

@@ -13,7 +13,7 @@ import {
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ActionResult, compareReadingsAction, LogEntry } from './actions';
+import { ActionResult, compareReadingsAction, LogEntry, LogReadingInput } from './actions';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -47,11 +47,18 @@ import { useToast } from '@/hooks/use-toast';
 import { exportToCsv } from '@/lib/csv';
 
 const formSchema = z.object({
-  bloodSugar: z.coerce
+  manualValue: z.coerce
     .number({ invalid_type_error: 'Please enter a valid number.' })
     .positive('Blood sugar must be a positive number.')
     .min(20, 'Value seems too low.')
     .max(600, 'Value seems too high.'),
+  diazoxideDose: z.preprocess(
+    (val) => (val === '' ? undefined : val),
+    z.coerce
+      .number({ invalid_type_error: 'Please enter a valid number.' })
+      .positive('Dose must be a positive number.')
+      .optional()
+  ),
 });
 
 const calculatorSchema = z.object({
@@ -77,7 +84,8 @@ export default function LogPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      bloodSugar: undefined,
+      manualValue: undefined,
+      diazoxideDose: undefined,
     },
   });
 
@@ -91,7 +99,7 @@ export default function LogPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
-      const result = await compareReadingsAction(values.bloodSugar);
+      const result = await compareReadingsAction(values as LogReadingInput);
       setLastResult(result);
       if (result.success && result.newLog) {
         setLogs(prev => [result.newLog!, ...prev]);
@@ -155,7 +163,7 @@ export default function LogPage() {
               <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="bloodSugar"
+                  name="manualValue"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Blood Sugar (mg/dL)</FormLabel>
@@ -163,6 +171,24 @@ export default function LogPage() {
                         <Input
                           placeholder="e.g., 140"
                           type="number"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="diazoxideDose"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Diazoxide Dose (ml)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., 2.5"
+                          type="number"
+                          step="0.1"
                           {...field}
                         />
                       </FormControl>
@@ -345,6 +371,7 @@ export default function LogPage() {
                 <TableHead>Timestamp</TableHead>
                 <TableHead className="text-right">Manual (mg/dL)</TableHead>
                 <TableHead className="text-right">CGM (mg/dL)</TableHead>
+                <TableHead className="text-right">Diazoxide (ml)</TableHead>
                 <TableHead>Analysis</TableHead>
               </TableRow>
             </TableHeader>
@@ -357,6 +384,9 @@ export default function LogPage() {
                   </TableCell>
                   <TableCell className="text-right font-bold text-primary">
                     {log.cgm}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {log.diazoxideDose ?? '--'}
                   </TableCell>
                   <TableCell>
                     {log.discrepancy ? (
