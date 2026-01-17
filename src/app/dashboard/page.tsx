@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { ArrowUp } from 'lucide-react';
 
 type CgmReading = {
     Glucose: number;
@@ -145,7 +144,6 @@ export default function DashboardPage() {
 
     const statusBadgeClasses = getStatusBadgeClasses(data?.Status);
     const statusDialClasses = getStatusDialClasses(data?.Status);
-    const isQuickTrend = data?.Trend === 'rising quickly' || data?.Trend === 'falling quickly';
 
     return (
         <div className="w-full max-w-sm font-sans">
@@ -191,13 +189,12 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 top-0 transform -translate-y-2 flex flex-col items-center",
+                        "absolute left-1/2 -translate-x-1/2 -top-px flex flex-col items-center",
                         statusDialClasses.text
                     )}>
-                        <ArrowUp className="h-10 w-10" />
-                        {isQuickTrend && (
-                            <ArrowUp className="h-10 w-10 -mt-5" />
-                        )}
+                        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                           <path d="M12 8L19 18L5 18Z" />
+                        </svg>
                     </div>
                 </div>
 
