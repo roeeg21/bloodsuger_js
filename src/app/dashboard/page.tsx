@@ -39,19 +39,19 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
-            return '-rotate-45';
+            return '-rotate-[135deg]';
         case 'rising':
             return '-rotate-90';
         case 'rising slightly':
-            return '-rotate-[135deg]';
+            return '-rotate-45';
         case 'steady':
             return 'hidden'; // Hide arrow for steady
         case 'falling slightly':
-            return 'rotate-[135deg]';
+            return 'rotate-45';
         case 'falling':
             return 'rotate-90';
         case 'falling quickly':
-            return 'rotate-45';
+            return 'rotate-[135deg]';
         default:
             return 'hidden';
     }
