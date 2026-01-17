@@ -189,11 +189,11 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 -top-px flex flex-col items-center",
+                        "absolute left-1/2 -translate-x-1/2 -top-7 flex flex-col items-center",
                         statusDialClasses.text
                     )}>
-                        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
-                           <path d="M12 8L19 18L5 18Z" />
+                        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+                           <path d="M12 0L24 12H0L12 0Z" />
                         </svg>
                     </div>
                 </div>
