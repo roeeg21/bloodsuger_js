@@ -175,14 +175,14 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            <div className="relative w-56 h-56 mx-auto mb-16">
+            <div className="relative w-48 h-48 mx-auto mb-12">
                 <div className={cn(
-                    "w-full h-full rounded-full border-[20px] flex flex-col items-center justify-center transition-colors glow-primary",
+                    "w-full h-full rounded-full border-[16px] flex flex-col items-center justify-center transition-colors glow-primary",
                     statusDialClasses.border,
                     statusDialClasses.bg,
                 )}>
                     <div className="flex items-baseline">
-                        <div className={cn("text-6xl font-bold", statusDialClasses.text)}>
+                        <div className={cn("text-5xl font-bold", statusDialClasses.text)}>
                             {loading ? '--' : data?.Glucose}
                         </div>
                     </div>
@@ -198,18 +198,18 @@ export default function DashboardPage() {
                 >
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                        "right-[-18px]", // Connects to perimeter
-                        "border-y-[28px] border-y-transparent",
-                        "border-l-[48px]",
+                        "right-[-10px]", // Connects to perimeter
+                        "border-y-[24px] border-y-transparent",
+                        "border-l-[40px]",
                         statusDialClasses.arrow
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "right-[-44px]",
-                            "border-y-[28px] border-y-transparent",
-                            "border-l-[48px]",
+                            "right-[-33px]",
+                            "border-y-[24px] border-y-transparent",
+                            "border-l-[40px]",
                             statusDialClasses.arrow
                         )} />
                     )}
