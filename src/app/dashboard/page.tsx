@@ -191,7 +191,7 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 top-[-14px] flex flex-col items-center",
+                        "absolute left-1/2 -translate-x-1/2 top-4 flex flex-col items-center",
                         statusDialClasses.text
                     )}>
                         <ArrowUp className="h-7 w-7" />
@@ -204,7 +204,7 @@ export default function DashboardPage() {
                 {/* Dial Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
                     {data?.Status === 'low' && !loading ? (
-                         <div className="absolute inset-0 flex items-center justify-center">
+                         <div className="absolute inset-0 flex items-center justify-center z-30">
                             <div className="animate-flash text-6xl font-bold text-destructive text-glow-destructive">LOW</div>
                         </div>
                     ) : (
