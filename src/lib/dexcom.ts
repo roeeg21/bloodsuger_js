@@ -66,7 +66,7 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
         throw new Error(`API returned an error: ${data.error}`);
     }
 
-    const glucoseValueRaw = data.value;
+    const glucoseValueRaw = data.Glucose;
     const glucoseValue = typeof glucoseValueRaw === 'string' 
       ? parseInt(glucoseValueRaw, 10) 
       : glucoseValueRaw;
@@ -75,21 +75,28 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
       console.error('Failed to parse glucose value from API. Received data:', JSON.stringify(data));
       throw new Error('Invalid glucose value received from API.');
     }
-
+    
+    // Directly use the status from the API if it's valid, otherwise calculate it as a fallback.
     let status: CgmReading['Status'];
-    if (glucoseValue <= 60) {
-      status = 'low';
-    } else if (glucoseValue >= 250) {
-      status = 'high';
+    const validStatuses: CgmReading['Status'][] = ['low', 'ok', 'high'];
+    if (data.Status && validStatuses.includes(data.Status)) {
+        status = data.Status;
     } else {
-      status = 'ok';
+        console.warn(`Invalid or missing status from API, calculating fallback. Received: ${data.Status}`);
+        if (glucoseValue <= 60) {
+            status = 'low';
+        } else if (glucoseValue >= 250) {
+            status = 'high';
+        } else {
+            status = 'ok';
+        }
     }
 
     const reading: CgmReading = {
       Glucose: glucoseValue,
       Status: status,
-      Trend: toCgmTrend(data.trend),
-      Time: data.time || new Date().toISOString(),
+      Trend: toCgmTrend(data.Trend),
+      Time: data.Time || new Date().toISOString(),
     };
     
     return reading;
