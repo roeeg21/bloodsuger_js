@@ -199,17 +199,17 @@ export default function DashboardPage() {
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
                         "right-[-20px]", // Connects to perimeter
-                        "border-y-[18px] border-y-transparent",
-                        "border-l-[30px]",
+                        "border-y-[22px] border-y-transparent",
+                        "border-l-[36px]",
                         statusDialClasses.arrow
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "right-[-40px]",
-                            "border-y-[18px] border-y-transparent",
-                            "border-l-[30px]",
+                            "right-[-42px]",
+                            "border-y-[22px] border-y-transparent",
+                            "border-l-[36px]",
                             statusDialClasses.arrow
                         )} />
                     )}
