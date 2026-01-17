@@ -201,17 +201,17 @@ export default function DashboardPage() {
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
                         "right-[-10px]",
-                        "border-y-[16px] border-y-transparent",
-                        "border-l-[26px]",
+                        "border-y-[24px] border-y-transparent",
+                        "border-l-[39px]",
                         statusDialClasses.arrow.replace('border-b-', 'border-l-')
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "right-[-22px]",
-                            "border-y-[16px] border-y-transparent",
-                            "border-l-[26px]",
+                            "right-[-30px]",
+                            "border-y-[24px] border-y-transparent",
+                            "border-l-[39px]",
                             statusDialClasses.arrow.replace('border-b-', 'border-l-')
                         )} />
                     )}
