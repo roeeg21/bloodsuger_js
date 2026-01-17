@@ -39,19 +39,21 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
+            return '-rotate-[135deg]';
         case 'rising':
-            return 'rotate-0'; // Up
+            return '-rotate-90';
         case 'rising slightly':
-            return 'rotate-45'; // Up-right
+            return '-rotate-45';
         case 'steady':
-            return 'rotate-90'; // Right
+            return 'rotate-0';
         case 'falling slightly':
-            return 'rotate-135'; // Down-right
+            return 'rotate-45';
         case 'falling':
+            return 'rotate-90';
         case 'falling quickly':
-            return 'rotate-180'; // Down
+            return 'rotate-[135deg]';
         default:
-            return 'hidden';
+            return 'rotate-0'; // Default to steady if trend is unknown
     }
 };
 
@@ -196,24 +198,22 @@ export default function DashboardPage() {
                         getTrendRotationClass(data?.Trend)
                     )}
                 >
-                    <div
-                        className={cn(
-                            "absolute left-1/2 -translate-x-1/2 w-0 h-0",
-                            isQuickTrend ? "-top-1" : "-top-2",
-                            "border-x-[18px] border-x-transparent",
-                            "border-b-[30px]",
-                            statusDialClasses.arrow
-                        )}
-                    />
+                    <div className={cn(
+                        "absolute top-1/2 -translate-y-1/2 w-0 h-0",
+                        "right-[-12px]",
+                        "border-y-[12px] border-y-transparent",
+                        "border-l-[20px]",
+                        statusDialClasses.arrow.replace('border-b-', 'border-l-')
+                    )} />
+
                     {isQuickTrend && (
-                         <div
-                            className={cn(
-                                "absolute left-1/2 -translate-x-1/2 w-0 h-0 -top-8",
-                                "border-x-[18px] border-x-transparent",
-                                "border-b-[30px]",
-                                statusDialClasses.arrow
-                            )}
-                        />
+                        <div className={cn(
+                            "absolute top-1/2 -translate-y-1/2 w-0 h-0",
+                            "right-[-22px]",
+                            "border-y-[12px] border-y-transparent",
+                            "border-l-[20px]",
+                            statusDialClasses.arrow.replace('border-b-', 'border-l-')
+                        )} />
                     )}
                 </div>
             </div>
