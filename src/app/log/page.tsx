@@ -185,14 +185,14 @@ export default function LogPage() {
                 className={`flex items-center gap-3 p-3 rounded-lg ${
                   lastResult.aiAnalysis.discrepancyDetected
                     ? 'bg-destructive/10 text-destructive'
-                    : 'bg-green-500/10 text-green-700'
+                    : 'bg-success/10 text-success'
                 }`}
               >
                 <AlertTriangle
                   className={
                     lastResult.aiAnalysis.discrepancyDetected
                       ? 'text-destructive'
-                      : 'text-green-500'
+                      : 'text-success'
                   }
                 />
                 <p className="font-bold">
@@ -208,11 +208,11 @@ export default function LogPage() {
                   {lastResult.aiAnalysis.discrepancyExplanation}
                 </p>
               </div>
-              <div className="flex items-start gap-3 bg-blue-500/10 p-3 rounded-lg">
-                <Lightbulb className="w-5 h-5 mt-1 text-blue-600 flex-shrink-0" />
+              <div className="flex items-start gap-3 bg-primary/10 p-3 rounded-lg">
+                <Lightbulb className="w-5 h-5 mt-1 text-primary flex-shrink-0" />
                 <div>
-                  <h4 className="font-bold text-blue-700">Suggested Action</h4>
-                  <p className="text-sm text-blue-700/80">
+                  <h4 className="font-bold text-primary">Suggested Action</h4>
+                  <p className="text-sm text-primary/80">
                     {lastResult.aiAnalysis.suggestedAction}
                   </p>
                 </div>
@@ -265,7 +265,7 @@ export default function LogPage() {
                     {log.discrepancy ? (
                       <span className="text-destructive">Discrepancy</span>
                     ) : (
-                      <span className="text-green-600">Consistent</span>
+                      <span className="text-success">Consistent</span>
                     )}
                   </TableCell>
                 </TableRow>
