@@ -43,15 +43,15 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
         case 'rising quickly':
             return 'rotate-0';
         case 'rising':
-            return 'rotate-0';
+            return 'rotate-[30deg]';
         case 'rising slightly':
-            return 'rotate-45';
+            return 'rotate-[60deg]';
         case 'steady':
             return 'rotate-90';
         case 'falling slightly':
-            return 'rotate-135';
+            return 'rotate-[120deg]';
         case 'falling':
-            return 'rotate-180';
+            return 'rotate-[150deg]';
         case 'falling quickly':
             return 'rotate-180';
         default:
