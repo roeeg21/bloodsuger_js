@@ -3,11 +3,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AlertTriangle,
   Bot,
+  Calculator,
+  Code,
   Download,
+  Home,
   Lightbulb,
   Loader2,
-  Home,
-  Code,
 } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -53,10 +54,22 @@ const formSchema = z.object({
     .max(600, 'Value seems too high.'),
 });
 
+const calculatorSchema = z.object({
+  bodyWeight: z.coerce
+    .number({ invalid_type_error: 'Please enter a valid number.' })
+    .positive('Body weight must be a positive number.'),
+  diazoxideDose: z.coerce
+    .number({ invalid_type_error: 'Please enter a valid number.' })
+    .positive('Diazoxide dose must be a positive number.'),
+});
+
 export default function LogPage() {
   const [isPending, startTransition] = React.useTransition();
   const [logs, setLogs] = React.useState<LogEntry[]>([]);
   const [lastResult, setLastResult] = React.useState<ActionResult | null>(
+    null
+  );
+  const [calculatedDose, setCalculatedDose] = React.useState<number | null>(
     null
   );
   const { toast } = useToast();
@@ -68,12 +81,20 @@ export default function LogPage() {
     },
   });
 
+  const calculatorForm = useForm<z.infer<typeof calculatorSchema>>({
+    resolver: zodResolver(calculatorSchema),
+    defaultValues: {
+      bodyWeight: undefined,
+      diazoxideDose: undefined,
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       const result = await compareReadingsAction(values.bloodSugar);
       setLastResult(result);
       if (result.success && result.newLog) {
-        setLogs((prev) => [result.newLog!, ...prev]);
+        setLogs(prev => [result.newLog!, ...prev]);
         form.reset();
       } else if (result.error) {
         toast({
@@ -83,6 +104,12 @@ export default function LogPage() {
         });
       }
     });
+  }
+
+  function onCalculatorSubmit(values: z.infer<typeof calculatorSchema>) {
+    const { bodyWeight, diazoxideDose } = values;
+    const result = (diazoxideDose * 3 * 50) / bodyWeight;
+    setCalculatedDose(result);
   }
 
   const handleExport = () => {
@@ -118,9 +145,7 @@ export default function LogPage() {
       <div className="grid md:grid-cols-2 gap-8">
         <Card>
           <CardHeader>
-            <CardTitle>
-              Manual Blood Sugar Log
-            </CardTitle>
+            <CardTitle>Manual Blood Sugar Log</CardTitle>
             <CardDescription>
               Enter your reading from your glucometer to compare with CGM data.
             </CardDescription>
@@ -147,10 +172,7 @@ export default function LogPage() {
                 />
               </CardContent>
               <CardFooter>
-                <Button
-                  type="submit"
-                  disabled={isPending}
-                >
+                <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
@@ -220,20 +242,93 @@ export default function LogPage() {
             </CardContent>
           )}
           {!isPending && !lastResult?.success && lastResult?.error && (
-             <CardContent className="flex items-center justify-center h-48">
-                <p className="text-destructive text-center">{lastResult.error}</p>
-             </CardContent>
+            <CardContent className="flex items-center justify-center h-48">
+              <p className="text-destructive text-center">{lastResult.error}</p>
+            </CardContent>
           )}
         </Card>
       </div>
 
       <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calculator /> Diazoxide Dose Calculator
+          </CardTitle>
+          <CardDescription>
+            Calculate the daily dose of diazoxide per kilogram of body weight.
+          </CardDescription>
+        </CardHeader>
+        <Form {...calculatorForm}>
+          <form onSubmit={calculatorForm.handleSubmit(onCalculatorSubmit)}>
+            <CardContent className="grid md:grid-cols-2 gap-4">
+              <FormField
+                control={calculatorForm.control}
+                name="bodyWeight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Body Weight (kg)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., 70"
+                        type="number"
+                        step="0.1"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={calculatorForm.control}
+                name="diazoxideDose"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Single Diazoxide Dose (ml)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., 5"
+                        type="number"
+                        step="0.1"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex-col items-start gap-4">
+              <Button type="submit">
+                <Calculator className="mr-2 h-4 w-4" />
+                Calculate
+              </Button>
+              {calculatedDose !== null && (
+                <div className="text-lg font-semibold p-4 bg-secondary rounded-lg">
+                  Calculated Daily Dose:{' '}
+                  <span className="font-bold text-primary">
+                    {calculatedDose.toFixed(2)} mg/kg/day
+                  </span>
+                </div>
+              )}
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
+
+      <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
             <CardTitle>Log History</CardTitle>
-            <CardDescription>A record of your manual entries.</CardDescription>
+            <CardDescription>
+              A record of your manual entries.
+            </CardDescription>
           </div>
-          <Button variant="outline" onClick={handleExport} disabled={logs.length === 0}>
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={logs.length === 0}
+          >
             <Download className="mr-2" />
             Download CSV
           </Button>
@@ -241,7 +336,9 @@ export default function LogPage() {
         <CardContent>
           <Table>
             {logs.length === 0 && (
-              <TableCaption>Your logged entries will appear here.</TableCaption>
+              <TableCaption>
+                Your logged entries will appear here.
+              </TableCaption>
             )}
             <TableHeader>
               <TableRow>
@@ -252,7 +349,7 @@ export default function LogPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs.map((log) => (
+              {logs.map(log => (
                 <TableRow key={log.id}>
                   <TableCell>{log.timestamp}</TableCell>
                   <TableCell className="text-right font-bold text-accent-foreground">
