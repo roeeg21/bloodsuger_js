@@ -198,18 +198,18 @@ export default function DashboardPage() {
                 >
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                        "right-[-60px]", // Connects to perimeter
-                        "border-y-[36px] border-y-transparent", // Makes arrow bigger
-                        "border-l-[60px]", // Makes arrow bigger
+                        "right-[-30px]", // Connects to perimeter
+                        "border-y-[18px] border-y-transparent",
+                        "border-l-[30px]",
                         statusDialClasses.arrow
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "right-[-80px]",
-                            "border-y-[36px] border-y-transparent",
-                            "border-l-[60px]",
+                            "right-[-50px]",
+                            "border-y-[18px] border-y-transparent",
+                            "border-l-[30px]",
                             statusDialClasses.arrow
                         )} />
                     )}
