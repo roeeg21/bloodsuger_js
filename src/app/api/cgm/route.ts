@@ -2,11 +2,6 @@ import { NextResponse } from 'next/server';
 import { getLiveCgmReading } from '@/lib/dexcom';
 
 export async function GET() {
-  // To use mock data for development, you can uncomment the lines below
-  // and comment out the try/catch block.
-  // import { generateCgmReading } from '@/lib/data';
-  // return NextResponse.json(generateCgmReading());
-
   try {
     const cgmData = await getLiveCgmReading();
     return NextResponse.json(cgmData);

@@ -1,11 +1,11 @@
 import { type CgmReading, generateCgmReading } from '@/lib/data';
 
 /**
- * NOTE: This function currently returns mock data due to persistent issues
- * with installing a real Dexcom API package. Once the package issue is resolved,
- * this can be replaced with a live API call.
+ * MOCK IMPLEMENTATION
+ * This function simulates a call to the Dexcom API.
+ * It uses a mock data generator to return a simulated CGM reading.
  */
 export async function getLiveCgmReading(): Promise<CgmReading> {
-  // The application is currently configured to use mock data.
+  console.warn('Using mock data because the Dexcom library failed to install. Please check your npm environment.');
   return generateCgmReading();
 }
