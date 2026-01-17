@@ -66,9 +66,14 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
         throw new Error(`API returned an error: ${data.error}`);
     }
 
-    const glucoseValue = data.value;
-    if (typeof glucoseValue !== 'number') {
-        throw new Error('Invalid glucose value received from API.');
+    const glucoseValueRaw = data.value;
+    const glucoseValue = typeof glucoseValueRaw === 'string' 
+      ? parseInt(glucoseValueRaw, 10) 
+      : glucoseValueRaw;
+
+    if (typeof glucoseValue !== 'number' || isNaN(glucoseValue)) {
+      console.error('Failed to parse glucose value from API. Received data:', JSON.stringify(data));
+      throw new Error('Invalid glucose value received from API.');
     }
 
     let status: CgmReading['Status'];
