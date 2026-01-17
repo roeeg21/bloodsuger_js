@@ -39,19 +39,19 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
-            return '-rotate-[135deg]';
+            return '-rotate-45';
         case 'rising':
             return '-rotate-90';
         case 'rising slightly':
-            return '-rotate-45';
+            return '-rotate-[135deg]';
         case 'steady':
             return 'hidden'; // Hide arrow for steady
         case 'falling slightly':
-            return 'rotate-45';
+            return 'rotate-[135deg]';
         case 'falling':
             return 'rotate-90';
         case 'falling quickly':
-            return 'rotate-[135deg]';
+            return 'rotate-45';
         default:
             return 'hidden';
     }
@@ -120,27 +120,27 @@ export default function DashboardPage() {
             border: 'border-muted',
             bg: 'bg-muted/50',
             text: 'text-muted-foreground',
-            arrow: 'border-l-muted'
+            arrow: 'border-r-muted'
         };
         switch (status) {
             case 'low': return {
                 border: 'border-destructive',
                 bg: 'bg-destructive/10',
-                text: 'text-destructive text-glow-primary',
-                arrow: 'border-l-destructive'
+                text: 'text-destructive text-glow-destructive',
+                arrow: 'border-r-destructive'
             };
             case 'high': return {
                 border: 'border-warning',
                 bg: 'bg-warning/10',
                 text: 'text-warning text-glow-primary',
-                arrow: 'border-l-warning'
+                arrow: 'border-r-warning'
             };
             case 'ok':
             default: return {
                 border: 'border-primary',
                 bg: 'bg-primary/10',
                 text: 'text-primary text-glow-primary',
-                arrow: 'border-l-primary'
+                arrow: 'border-r-primary'
             };
         }
     }
@@ -175,12 +175,17 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            <div className="relative w-48 h-48 mx-auto mb-12">
+            <div className="relative w-48 h-48 mx-auto mb-16">
                 <div className={cn(
                     "w-full h-full rounded-full border-[16px] flex flex-col items-center justify-center transition-colors glow-primary",
                     statusDialClasses.border,
                     statusDialClasses.bg,
                 )}>
+                    {data?.Status === 'low' && !loading && (
+                         <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="animate-flash text-6xl font-bold text-destructive text-glow-destructive z-10">LOW</div>
+                        </div>
+                    )}
                     <div className="flex items-baseline">
                         <div className={cn("text-5xl font-bold", statusDialClasses.text)}>
                             {loading ? '--' : data?.Glucose}
@@ -190,6 +195,7 @@ export default function DashboardPage() {
                         mg/dL
                     </div>
                 </div>
+
                 <div
                     className={cn(
                         "absolute inset-0 transition-transform duration-500",
@@ -198,18 +204,18 @@ export default function DashboardPage() {
                 >
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                        "right-[-24px]", // Connects to perimeter
-                        "border-y-[24px] border-y-transparent",
-                        "border-l-[40px]",
+                        "left-20",
+                        "border-y-[12px] border-y-transparent",
+                        "border-r-[16px]",
                         statusDialClasses.arrow
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "right-[-47px]",
-                            "border-y-[24px] border-y-transparent",
-                            "border-l-[40px]",
+                            "left-24",
+                            "border-y-[12px] border-y-transparent",
+                            "border-r-[16px]",
                             statusDialClasses.arrow
                         )} />
                     )}
