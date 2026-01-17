@@ -39,19 +39,19 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
-            return '-rotate-45';
+            return 'rotate-45';
         case 'rising':
-            return '-rotate-90';
+            return 'rotate-0';
         case 'rising slightly':
-            return '-rotate-45';
+            return 'rotate-[22.5deg]';
         case 'steady':
-            return 'hidden'; // Hide arrow for steady
+            return 'hidden';
         case 'falling slightly':
-            return 'rotate-45';
+            return 'rotate-[157.5deg]';
         case 'falling':
-            return 'rotate-90';
+            return 'rotate-180';
         case 'falling quickly':
-            return 'rotate-45';
+            return 'rotate-135';
         default:
             return 'hidden';
     }
@@ -203,18 +203,18 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute top-1/2 -translate-y-1/2 w-0 h-0 right-0",
-                        "border-y-[12px] border-y-transparent",
-                        "border-l-[16px]",
-                        statusDialClasses.arrow
+                        "absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0",
+                        "border-x-[12px] border-x-transparent",
+                        "border-b-[16px]",
+                        statusDialClasses.arrow.replace('border-l-', 'border-b-')
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
-                            "absolute top-1/2 -translate-y-1/2 w-0 h-0 right-4",
-                            "border-y-[12px] border-y-transparent",
-                            "border-l-[16px]",
-                            statusDialClasses.arrow
+                            "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-0 h-0",
+                            "border-x-[12px] border-x-transparent",
+                            "border-b-[16px]",
+                            statusDialClasses.arrow.replace('border-l-', 'border-b-')
                         )} />
                     )}
                 </div>
