@@ -176,7 +176,7 @@ export default function DashboardPage() {
             <div className="relative w-48 h-48 mx-auto mb-16">
                 {/* Dial Background */}
                 <div className={cn(
-                    "w-full h-full rounded-full border-[16px] glow-primary",
+                    "w-full h-full rounded-full border-[24px] glow-primary",
                     statusDialClasses.border,
                     statusDialClasses.bg,
                 )}>
@@ -194,9 +194,9 @@ export default function DashboardPage() {
                         "absolute left-1/2 -translate-x-1/2 top-0 flex flex-col items-center",
                         statusDialClasses.text
                     )}>
-                        <ArrowUp className="h-4 w-4" />
+                        <ArrowUp className="h-6 w-6" />
                         {isQuickTrend && (
-                            <ArrowUp className="h-4 w-4 -mt-2" />
+                            <ArrowUp className="h-6 w-6 -mt-3" />
                         )}
                     </div>
                 </div>
