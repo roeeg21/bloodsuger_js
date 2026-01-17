@@ -72,9 +72,9 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
     }
 
     let status: CgmReading['Status'];
-    if (glucoseValue < 60) {
+    if (glucoseValue <= 60) {
       status = 'low';
-    } else if (glucoseValue > 250) {
+    } else if (glucoseValue >= 250) {
       status = 'high';
     } else {
       status = 'ok';

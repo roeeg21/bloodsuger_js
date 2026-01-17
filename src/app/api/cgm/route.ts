@@ -6,8 +6,8 @@ export async function GET() {
     const cgmData = await getLiveCgmReading();
     return NextResponse.json(cgmData);
   } catch (err: any) {
-    console.error('Dexcom API error:', err);
+    console.error('CGM API error:', err);
     // Return a structured error that the frontend can display
-    return NextResponse.json({ error: `Failed to fetch from Dexcom: ${err.message}` }, { status: 500 });
+    return NextResponse.json({ error: `Failed to fetch CGM data: ${err.message}` }, { status: 500 });
   }
 }
