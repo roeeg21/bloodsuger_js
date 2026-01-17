@@ -45,6 +45,19 @@ function calculateTimeSince(timeString: string | null) {
     return `${diffHours} hours ago`;
 }
 
+const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
+    if (!trend) return 'hidden';
+    switch (trend) {
+        case 'rising quickly': return 'rotate-0';
+        case 'rising': return 'rotate-45';
+        case 'steady':
+        case 'rising slightly':
+        case 'falling slightly': return 'rotate-90';
+        case 'falling': return 'rotate-135';
+        case 'falling quickly': return 'rotate-180';
+        default: return 'hidden';
+    }
+};
 
 export default function DashboardPage() {
     const pathname = usePathname();
@@ -109,27 +122,27 @@ export default function DashboardPage() {
             border: 'border-slate-300',
             bg: 'bg-slate-100',
             text: 'text-slate-800',
-            pointer: 'border-l-slate-300'
+            arrow: 'border-b-slate-300'
         };
         switch (status) {
             case 'low': return {
                 border: 'border-red-400',
                 bg: 'bg-red-50',
                 text: 'text-red-900',
-                pointer: 'border-l-red-400'
+                arrow: 'border-b-red-400'
             };
             case 'high': return {
                 border: 'border-amber-400',
                 bg: 'bg-amber-50',
                 text: 'text-amber-900',
-                pointer: 'border-l-amber-400'
+                arrow: 'border-b-amber-400'
             };
             case 'ok':
             default: return {
                 border: 'border-green-400',
                 bg: 'bg-green-50',
                 text: 'text-green-900',
-                pointer: 'border-l-green-400'
+                arrow: 'border-b-green-400'
             };
         }
     }
@@ -175,7 +188,7 @@ export default function DashboardPage() {
                         <div className="text-6xl font-bold">
                             {loading ? '--' : data?.Glucose}
                         </div>
-                        <div className="text-4xl text-slate-600 ml-2">
+                        <div className="text-5xl text-slate-600 ml-2">
                              {data?.Trend ? TREND_ARROWS[data.Trend] : ''}
                         </div>
                     </div>
@@ -183,10 +196,21 @@ export default function DashboardPage() {
                         mg/dL
                     </div>
                 </div>
-                <div className={cn(
-                    "absolute top-1/2 -translate-y-1/2 w-0 h-0 border-y-[14px] border-y-transparent border-l-[14px] transition-colors",
-                    statusDialClasses.pointer,
-                    )} style={{ right: "-6px" }}></div>
+                <div
+                    className={cn(
+                        "absolute inset-0 transition-transform duration-500",
+                        getTrendRotationClass(data?.Trend)
+                    )}
+                >
+                    <div
+                        className={cn(
+                            "absolute left-1/2 -translate-x-1/2 w-0 h-0 -top-1",
+                            "border-x-[12px] border-x-transparent",
+                            "border-b-[20px]",
+                            statusDialClasses.arrow
+                        )}
+                    />
+                </div>
             </div>
 
             <div className="bg-white rounded-xl p-1 border border-slate-200 shadow-sm mb-6">
