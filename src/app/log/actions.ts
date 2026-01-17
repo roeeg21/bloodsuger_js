@@ -57,8 +57,8 @@ export async function compareReadingsAction(manualValue: number): Promise<Action
             aiAnalysis,
             newLog,
         };
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        return { success: false, error: "Failed to get analysis from AI. Please try again." }
+        return { success: false, error: e.message || "Failed to analyze data. Please try again." }
     }
 }

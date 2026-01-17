@@ -72,14 +72,14 @@ export default function DashboardPage() {
         setError(null);
         try {
             const response = await fetch('/api/cgm');
+            const result = await response.json();
             if (!response.ok) {
-                throw new Error('Failed to fetch glucose data');
+                throw new Error(result.error || 'Failed to fetch glucose data');
             }
-            const result: CgmReading = await response.json();
-            setData(result);
+            setData(result as CgmReading);
             setLastSync(new Date());
-        } catch (err) {
-            setError('Unable to retrieve glucose data. Please try again.');
+        } catch (err: any) {
+            setError(err.message || 'Unable to retrieve glucose data. Please try again.');
             console.error('Error:', err);
         } finally {
             setLoading(false);
@@ -191,7 +191,7 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 top-4 flex flex-col items-center",
+                        "absolute left-1/2 -translate-x-1/2 top-[-6px] flex flex-col items-center",
                         statusDialClasses.text
                     )}>
                         <ArrowUp className="h-7 w-7" />
