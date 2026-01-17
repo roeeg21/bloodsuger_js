@@ -204,7 +204,7 @@ export default function DashboardPage() {
                 >
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                        "left-20",
+                        "left-[11rem]",
                         "border-y-[12px] border-y-transparent",
                         "border-r-[16px]",
                         statusDialClasses.arrow
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "left-24",
+                            "left-[10rem]",
                             "border-y-[12px] border-y-transparent",
                             "border-r-[16px]",
                             statusDialClasses.arrow
