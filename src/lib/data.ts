@@ -89,8 +89,3 @@ export function generateCgmData(): CgmDataPoint[] {
 
   return data;
 }
-
-export function getLatestCgmValue(): number {
-    const data = generateCgmData();
-    return data[data.length - 1].value;
-}

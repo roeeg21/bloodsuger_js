@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
-import { generateCgmReading, type CgmReading } from '@/lib/data';
+import { getLiveCgmReading } from '@/lib/dexcom';
 
 export async function GET() {
-  // This endpoint currently returns mock data.
-  // To connect to a real Dexcom feed, you would replace the call
-  // to generateCgmReading() with a call to the Dexcom API.
+  // To use mock data for development, you can uncomment the lines below
+  // and comment out the try/catch block.
+  // import { generateCgmReading } from '@/lib/data';
+  // return NextResponse.json(generateCgmReading());
+
   try {
-    const cgmData: CgmReading = generateCgmReading();
+    const cgmData = await getLiveCgmReading();
     return NextResponse.json(cgmData);
   } catch (err: any) {
-    console.error('API error:', err);
-    return NextResponse.json({ error: `Failed to generate mock data: ${err.message}` }, { status: 500 });
+    console.error('Dexcom API error:', err);
+    // Return a structured error that the frontend can display
+    return NextResponse.json({ error: `Failed to fetch from Dexcom: ${err.message}` }, { status: 500 });
   }
 }

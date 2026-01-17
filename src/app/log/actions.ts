@@ -1,7 +1,7 @@
 'use server';
 
 import { compareCgmWithManualLog, CompareCgmWithManualLogOutput } from '@/ai/flows/compare-cgm-with-manual-log';
-import { getLatestCgmValue } from '@/lib/data';
+import { getLiveCgmReading } from '@/lib/dexcom';
 import { z } from 'zod';
 
 const LogEntrySchema = z.object({
@@ -34,7 +34,8 @@ export async function compareReadingsAction(manualValue: number): Promise<Action
 
     try {
         const timestamp = new Date();
-        const cgmValue = getLatestCgmValue();
+        const liveReading = await getLiveCgmReading();
+        const cgmValue = liveReading.Glucose;
 
         const aiAnalysis = await compareCgmWithManualLog({
             cgmValue,
