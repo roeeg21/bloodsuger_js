@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { ArrowUp } from 'lucide-react';
 
 type CgmReading = {
     Glucose: number;
@@ -35,24 +36,24 @@ function calculateTimeSince(timeString: string | null) {
     return `${diffHours} hours ago`;
 }
 
-// Arrow points down at 0 rotation
+// UPWARD pointing arrow at 0 rotation
 const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
-            return 'rotate-135';
-        case 'rising':
-            return 'rotate-180';
-        case 'rising slightly':
-            return 'rotate-[157.5deg]';
-        case 'steady':
-            return 'hidden';
-        case 'falling slightly':
-            return 'rotate-[22.5deg]';
-        case 'falling':
             return 'rotate-0';
-        case 'falling quickly':
+        case 'rising':
+            return 'rotate-0';
+        case 'rising slightly':
             return 'rotate-45';
+        case 'steady':
+            return 'rotate-90';
+        case 'falling slightly':
+            return 'rotate-135';
+        case 'falling':
+            return 'rotate-180';
+        case 'falling quickly':
+            return 'rotate-180';
         default:
             return 'hidden';
     }
@@ -121,27 +122,23 @@ export default function DashboardPage() {
             border: 'border-muted',
             bg: 'bg-muted/50',
             text: 'text-muted-foreground',
-            arrow: 'border-l-muted'
         };
         switch (status) {
             case 'low': return {
                 border: 'border-destructive',
                 bg: 'bg-destructive/10',
                 text: 'text-destructive text-glow-destructive',
-                arrow: 'border-l-destructive'
             };
             case 'high': return {
                 border: 'border-warning',
                 bg: 'bg-warning/10',
                 text: 'text-warning text-glow-primary',
-                arrow: 'border-l-warning'
             };
             case 'ok':
             default: return {
                 border: 'border-primary',
                 bg: 'bg-primary/10',
                 text: 'text-primary text-glow-primary',
-                arrow: 'border-l-primary'
             };
         }
     }
@@ -177,46 +174,50 @@ export default function DashboardPage() {
             )}
 
             <div className="relative w-48 h-48 mx-auto mb-16">
+                {/* Dial Background */}
                 <div className={cn(
-                    "w-full h-full rounded-full border-[16px] flex flex-col items-center justify-center transition-colors glow-primary",
+                    "w-full h-full rounded-full border-[16px] glow-primary",
                     statusDialClasses.border,
                     statusDialClasses.bg,
                 )}>
-                    {data?.Status === 'low' && !loading && (
-                         <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="animate-flash text-6xl font-bold text-destructive text-glow-destructive z-10">LOW</div>
-                        </div>
-                    )}
-                    <div className="flex items-baseline">
-                        <div className={cn("text-6xl font-bold", statusDialClasses.text)}>
-                            {loading ? '--' : data?.Glucose}
-                        </div>
-                    </div>
-                    <div className="text-lg text-muted-foreground mt-1">
-                        mg/dL
-                    </div>
                 </div>
 
+                {/* Arrow */}
                 <div
                     className={cn(
-                        "absolute inset-0 transition-transform duration-500",
-                        getTrendRotationClass(data?.Trend)
+                        "absolute inset-0 transition-transform duration-500 z-10",
+                        getTrendRotationClass(data?.Trend),
+                        {'hidden': loading || !data}
                     )}
                 >
                     <div className={cn(
-                        "absolute top-[-16px] left-1/2 -translate-x-1/2 w-0 h-0",
-                        "border-x-[12px] border-x-transparent",
-                        "border-b-[16px]",
-                        statusDialClasses.arrow.replace('border-l-', 'border-b-')
-                    )} />
+                        "absolute left-1/2 -translate-x-1/2 top-[-14px] flex flex-col items-center",
+                        statusDialClasses.text
+                    )}>
+                        <ArrowUp className="h-7 w-7" />
+                        {isQuickTrend && (
+                            <ArrowUp className="h-7 w-7 -mt-4" />
+                        )}
+                    </div>
+                </div>
 
-                    {isQuickTrend && (
-                        <div className={cn(
-                            "absolute top-[-16px] left-1/2 -translate-x-1/2 -translate-y-1 w-0 h-0",
-                            "border-x-[12px] border-x-transparent",
-                            "border-b-[16px]",
-                            statusDialClasses.arrow.replace('border-l-', 'border-b-')
-                        )} />
+                {/* Dial Content */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                    {data?.Status === 'low' && !loading ? (
+                         <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="animate-flash text-6xl font-bold text-destructive text-glow-destructive">LOW</div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-baseline">
+                                <div className={cn("text-6xl font-bold", statusDialClasses.text)}>
+                                    {loading ? '--' : data?.Glucose}
+                                </div>
+                            </div>
+                            <div className="text-lg text-muted-foreground mt-1">
+                                mg/dL
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
