@@ -175,7 +175,7 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            <div className="relative w-64 h-64 mx-auto mb-10">
+            <div className="relative w-64 h-64 mx-auto mb-16">
                 <div className={cn(
                     "w-full h-full rounded-full border-[20px] flex flex-col items-center justify-center transition-colors glow-primary",
                     statusDialClasses.border,
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                 >
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                        "right-[-30px]", // Connects to perimeter
+                        "right-[-20px]", // Connects to perimeter
                         "border-y-[18px] border-y-transparent",
                         "border-l-[30px]",
                         statusDialClasses.arrow
@@ -207,7 +207,7 @@ export default function DashboardPage() {
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "right-[-50px]",
+                            "right-[-40px]",
                             "border-y-[18px] border-y-transparent",
                             "border-l-[30px]",
                             statusDialClasses.arrow
