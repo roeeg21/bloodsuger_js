@@ -39,7 +39,7 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
         case 'rising quickly':
-            return '-rotate-[135deg]';
+            return '-rotate-45';
         case 'rising':
             return '-rotate-90';
         case 'rising slightly':
@@ -51,7 +51,7 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
         case 'falling':
             return 'rotate-90';
         case 'falling quickly':
-            return 'rotate-[135deg]';
+            return 'rotate-45';
         default:
             return 'hidden';
     }
@@ -120,27 +120,27 @@ export default function DashboardPage() {
             border: 'border-muted',
             bg: 'bg-muted/50',
             text: 'text-muted-foreground',
-            arrow: 'border-r-muted'
+            arrow: 'border-l-muted'
         };
         switch (status) {
             case 'low': return {
                 border: 'border-destructive',
                 bg: 'bg-destructive/10',
                 text: 'text-destructive text-glow-destructive',
-                arrow: 'border-r-destructive'
+                arrow: 'border-l-destructive'
             };
             case 'high': return {
                 border: 'border-warning',
                 bg: 'bg-warning/10',
                 text: 'text-warning text-glow-primary',
-                arrow: 'border-r-warning'
+                arrow: 'border-l-warning'
             };
             case 'ok':
             default: return {
                 border: 'border-primary',
                 bg: 'bg-primary/10',
                 text: 'text-primary text-glow-primary',
-                arrow: 'border-r-primary'
+                arrow: 'border-l-primary'
             };
         }
     }
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                         </div>
                     )}
                     <div className="flex items-baseline">
-                        <div className={cn("text-5xl font-bold", statusDialClasses.text)}>
+                        <div className={cn("text-6xl font-bold", statusDialClasses.text)}>
                             {loading ? '--' : data?.Glucose}
                         </div>
                     </div>
@@ -204,18 +204,18 @@ export default function DashboardPage() {
                 >
                     <div className={cn(
                         "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                        "left-[11rem]",
+                        "left-[calc(12rem-16px)]",
                         "border-y-[12px] border-y-transparent",
-                        "border-r-[16px]",
+                        "border-l-[16px]",
                         statusDialClasses.arrow
                     )} />
 
                     {isQuickTrend && (
                         <div className={cn(
                             "absolute top-1/2 -translate-y-1/2 w-0 h-0",
-                            "left-[10rem]",
+                            "left-[calc(12rem-32px)]",
                             "border-y-[12px] border-y-transparent",
-                            "border-r-[16px]",
+                            "border-l-[16px]",
                             statusDialClasses.arrow
                         )} />
                     )}
