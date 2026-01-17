@@ -19,16 +19,6 @@ type CgmReading = {
     Time: string;
 };
 
-const TREND_ARROWS: Record<CgmReading['Trend'], string> = {
-    'rising quickly': '↑',
-    rising: '↗',
-    'rising slightly': '→',
-    steady: '→',
-    'falling slightly': '→',
-    falling: '↘',
-    'falling quickly': '↓',
-};
-
 function calculateTimeSince(timeString: string | null) {
     if (!timeString) return '--';
     const readingTime = new Date(timeString);
@@ -48,14 +38,20 @@ function calculateTimeSince(timeString: string | null) {
 const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
     if (!trend) return 'hidden';
     switch (trend) {
-        case 'rising quickly': return 'rotate-0';
-        case 'rising': return 'rotate-45';
-        case 'steady':
+        case 'rising quickly':
+        case 'rising':
+            return 'rotate-0'; // Up
         case 'rising slightly':
-        case 'falling slightly': return 'rotate-90';
-        case 'falling': return 'rotate-135';
-        case 'falling quickly': return 'rotate-180';
-        default: return 'hidden';
+            return 'rotate-45'; // Up-right
+        case 'steady':
+            return 'rotate-90'; // Right
+        case 'falling slightly':
+            return 'rotate-135'; // Down-right
+        case 'falling':
+        case 'falling quickly':
+            return 'rotate-180'; // Down
+        default:
+            return 'hidden';
     }
 };
 
@@ -149,6 +145,7 @@ export default function DashboardPage() {
 
     const statusBadgeClasses = getStatusBadgeClasses(data?.Status);
     const statusDialClasses = getStatusDialClasses(data?.Status);
+    const isQuickTrend = data?.Trend === 'rising quickly' || data?.Trend === 'falling quickly';
 
 
     return (
@@ -201,12 +198,23 @@ export default function DashboardPage() {
                 >
                     <div
                         className={cn(
-                            "absolute left-1/2 -translate-x-1/2 w-0 h-0 -top-2",
+                            "absolute left-1/2 -translate-x-1/2 w-0 h-0",
+                            isQuickTrend ? "-top-1" : "-top-2",
                             "border-x-[18px] border-x-transparent",
                             "border-b-[30px]",
                             statusDialClasses.arrow
                         )}
                     />
+                    {isQuickTrend && (
+                         <div
+                            className={cn(
+                                "absolute left-1/2 -translate-x-1/2 w-0 h-0 -top-8",
+                                "border-x-[18px] border-x-transparent",
+                                "border-b-[30px]",
+                                statusDialClasses.arrow
+                            )}
+                        />
+                    )}
                 </div>
             </div>
 
