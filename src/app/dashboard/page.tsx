@@ -174,7 +174,7 @@ export default function DashboardPage() {
             <div className="relative w-48 h-48 mx-auto mb-16">
                 {/* Dial Background */}
                 <div className={cn(
-                    "w-full h-full rounded-full border-[24px] glow-primary",
+                    "w-full h-full rounded-full border-8 glow-primary",
                     statusDialClasses.border,
                     statusDialClasses.bg,
                 )}>
@@ -189,10 +189,10 @@ export default function DashboardPage() {
                     )}
                 >
                     <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 -top-7 flex flex-col items-center",
+                        "absolute left-1/2 -translate-x-1/2 -top-9 flex flex-col items-center",
                         statusDialClasses.text
                     )}>
-                        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+                        <svg viewBox="0 0 24 24" className="h-8 w-8" fill="currentColor">
                            <path d="M12 0L24 12H0L12 0Z" />
                         </svg>
                     </div>
