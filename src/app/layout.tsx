@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={cn('min-h-screen bg-background font-sans antialiased', rajdhani.variable)}>
-        <main className="min-h-screen flex items-center justify-center p-5">
+        <main className="flex min-h-screen w-full flex-col items-center p-4 sm:p-6">
           {children}
         </main>
         <Toaster />

@@ -135,8 +135,8 @@ export default function LogPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 grid gap-8 w-full max-w-6xl">
-      <div className="flex items-center justify-between -mt-4">
+    <div className="grid gap-8 w-full max-w-6xl">
+      <div className="flex items-center justify-between">
         <Button asChild variant="outline">
           <Link href="/dashboard">
             <Home className="mr-2 h-4 w-4" />
