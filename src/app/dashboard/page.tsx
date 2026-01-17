@@ -188,9 +188,6 @@ export default function DashboardPage() {
                         <div className="text-6xl font-bold">
                             {loading ? '--' : data?.Glucose}
                         </div>
-                        <div className="text-5xl text-slate-600 ml-2">
-                             {data?.Trend ? TREND_ARROWS[data.Trend] : ''}
-                        </div>
                     </div>
                     <div className="text-lg text-slate-500 mt-1">
                         mg/dL
@@ -204,9 +201,9 @@ export default function DashboardPage() {
                 >
                     <div
                         className={cn(
-                            "absolute left-1/2 -translate-x-1/2 w-0 h-0 -top-1",
-                            "border-x-[12px] border-x-transparent",
-                            "border-b-[20px]",
+                            "absolute left-1/2 -translate-x-1/2 w-0 h-0 -top-2",
+                            "border-x-[18px] border-x-transparent",
+                            "border-b-[30px]",
                             statusDialClasses.arrow
                         )}
                     />
