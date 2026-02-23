@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getCgmHistoryFromFirstReading } from '@/lib/dexcom';
+import { getStoredCgmReadings, getCgmCsvPath } from '@/lib/cgm-history-store';
 
 export async function GET() {
   try {
-    const records = await getCgmHistoryFromFirstReading();
+    const records = await getStoredCgmReadings();
     return NextResponse.json({
+      source: 'csv',
+      csvPath: getCgmCsvPath(),
       count: records.length,
       firstReading: records[0]?.Time ?? null,
       lastReading: records[records.length - 1]?.Time ?? null,

@@ -165,24 +165,24 @@ export default function GraphPage() {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Glucose History Graph</h1>
             <p className="text-sm text-muted-foreground">
-              First reading available from the API through today ({new Date().toLocaleDateString('en-US')}).
+              Readings collected in this deployment CSV through today ({new Date().toLocaleDateString('en-US')}).
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {lastSync ? `Last synced ${lastSync.toLocaleTimeString('en-US')}` : 'Syncing...'}
             </p>
           </div>
 
-          <div className="inline-flex w-full gap-1 rounded-2xl border border-white/10 bg-white/5 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl sm:w-auto">
+          <div className="inline-flex w-full gap-1 rounded-full border border-white/10 bg-white/6 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.10)] backdrop-blur-xl sm:w-auto">
             {rangeOptions.map((option) => (
               <button
                 key={option.key}
                 type="button"
                 onClick={() => setRange(option.key)}
                 className={[
-                  'flex-1 rounded-xl border px-4 py-2 text-sm font-semibold backdrop-blur-xl transition-all duration-200 active:scale-[0.98] sm:flex-none',
+                  'flex-1 rounded-full border px-4 py-2 text-sm font-semibold tracking-tight backdrop-blur-xl transition-all duration-200 active:scale-[0.97] active:brightness-95 sm:flex-none',
                   range === option.key
-                    ? 'border-white/15 bg-white/15 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_18px_rgba(0,0,0,0.26)]'
-                    : 'border-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground',
+                    ? 'border-white/15 bg-white/16 text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_6px_16px_rgba(0,0,0,0.22)]'
+                    : 'border-transparent text-muted-foreground hover:bg-white/7 hover:text-foreground',
                 ].join(' ')}
                 aria-pressed={range === option.key}
               >

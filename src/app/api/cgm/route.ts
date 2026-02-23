@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getLiveCgmReading } from '@/lib/dexcom';
+import { storeCgmReading } from '@/lib/cgm-history-store';
 
 export async function GET() {
   try {
     const cgmData = await getLiveCgmReading();
+    await storeCgmReading(cgmData);
     return NextResponse.json(cgmData);
   } catch (err: any) {
     console.error('CGM API error:', err);
