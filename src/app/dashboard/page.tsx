@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { CgmNav } from '@/components/cgm-nav';
+import { Button } from '@/components/ui/button';
 
 type CgmReading = {
     Glucose: number;
@@ -59,7 +59,6 @@ const getTrendRotationClass = (trend?: CgmReading['Trend']) => {
 };
 
 export default function DashboardPage() {
-    const pathname = usePathname();
     const [data, setData] = useState<CgmReading | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -156,14 +155,7 @@ export default function DashboardPage() {
                 </p>
             </header>
 
-            <nav className="flex gap-2 mb-8 bg-secondary p-1 rounded-lg">
-                <Link href="/dashboard" className={cn("flex-1 py-2 px-4 rounded-md text-sm font-semibold text-center transition-colors", { 'bg-primary text-primary-foreground': pathname.startsWith('/dashboard'), 'text-muted-foreground hover:bg-primary/20': !pathname.startsWith('/dashboard') })}>
-                    Monitor
-                </Link>
-                <Link href="/log" className={cn("flex-1 py-2 px-4 rounded-md text-sm font-semibold text-center transition-colors", { 'bg-primary text-primary-foreground': pathname.startsWith('/log'), 'text-muted-foreground hover:bg-primary/20': !pathname.startsWith('/log') })}>
-                    Log
-                </Link>
-            </nav>
+            <CgmNav className="mb-8" />
 
             {error && (
                 <div className="bg-destructive/20 border border-destructive text-destructive p-3 rounded-lg mb-6 text-center text-sm">
@@ -252,9 +244,13 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <button onClick={fetchGlucose} disabled={loading} className="w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-semibold transition-colors hover:bg-primary/80 disabled:bg-primary/50">
+            <Button
+              onClick={fetchGlucose}
+              disabled={loading}
+              className="w-full h-12 rounded-2xl"
+            >
                 {loading ? 'Updating...' : 'Refresh Data'}
-            </button>
+            </Button>
             <div className="text-center mt-3 text-xs text-muted-foreground">
                 Last updated: {lastSync ? lastSync.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--'}
             </div>

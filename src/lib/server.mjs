@@ -11,13 +11,14 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
  *  - Production JP: https://api.dexcom.jp
  *  - Sandbox: https://sandbox-api.dexcom.com
  */
-const DEXCOM_BASE = process.env.DEXCOM_BASE || "https://sandbox-api.dexcom.eu";
+const DEXCOM_BASE = process.env.DEXCOM_BASE || "https://api.dexcom.eu";
+const FALLBACK_API_BASE = process.env.FALLBACK_API_BASE || "https://bloodsuger.vercel.app";
 
 const TOKEN_URL = `${DEXCOM_BASE}/v3/oauth2/token`;
 const LOGIN_URL = `${DEXCOM_BASE}/v3/oauth2/login`;
 
-const CLIENT_ID = process.env.DEXCOM_CLIENT_ID || "";
-const CLIENT_SECRET = process.env.DEXCOM_CLIENT_SECRET || ""; // if required, set it in env
+const CLIENT_ID = process.env.DEXCOM_CLIENT_ID || "fPGvwzmjPDis948Oj6K15mWzVa9rlujY";
+const CLIENT_SECRET = process.env.DEXCOM_CLIENT_SECRET || "RiehJw8nynYSvhLJ"; // if required, set it in env
 const REDIRECT_URI =
   process.env.DEXCOM_REDIRECT_URI || `http://localhost:${PORT}/auth/dexcom/callback`;
 const SCOPE = process.env.DEXCOM_SCOPE || "offline_access";
@@ -66,6 +67,68 @@ function getGlucoseStatus(value) {
   if (value <= 60) return 'low';
   if (value >= 250) return 'high';
   return 'ok';
+}
+
+function normalizeEgvsRecord(record) {
+  return {
+    Glucose: record.value,
+    Status: getGlucoseStatus(record.value),
+    Trend: mapDexcomTrend(record.trend),
+    Time: record.systemTime,
+  };
+}
+
+async function fetchFallbackJson(pathname) {
+  const url = `${FALLBACK_API_BASE}${pathname}`;
+  const r = await fetch(url, {
+    headers: { Accept: "application/json" },
+  });
+
+  const text = await r.text();
+  if (!r.ok) {
+    const err = new Error(`Fallback API failed (${r.status}) at ${url}: ${text}`);
+    err.statusCode = r.status;
+    throw err;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Fallback API returned non-JSON from ${url}`);
+  }
+}
+
+function normalizeFallbackReading(record) {
+  if (!record || (typeof record !== "object")) {
+    throw new Error("Fallback reading is not an object");
+  }
+
+  const glucoseRaw = record.Glucose;
+  const glucose =
+    typeof glucoseRaw === "string" ? Number.parseInt(glucoseRaw, 10) : glucoseRaw;
+
+  if (!Number.isFinite(glucose)) {
+    throw new Error("Fallback reading missing valid Glucose");
+  }
+
+  const rawTime = typeof record.Time === "string" ? record.Time.trim() : "";
+  // Handle fallback format like "2026-02-23 08:54:47"
+  const normalizedTime = rawTime.includes("T")
+    ? rawTime
+    : rawTime
+      ? rawTime.replace(" ", "T")
+      : new Date().toISOString();
+
+  const validStatuses = new Set(["low", "ok", "high"]);
+  const status = validStatuses.has(record.Status) ? record.Status : getGlucoseStatus(glucose);
+
+  return {
+    Glucose: glucose,
+    Status: status,
+    Time: normalizedTime,
+    Trend: typeof record.Trend === "string" ? record.Trend : "steady",
+    test: record.test ?? null,
+  };
 }
 
 // Home
@@ -215,6 +278,31 @@ async function ensureAccessToken() {
   return tokenStore.access_token;
 }
 
+async function fetchDexcomEgvsRange(startDate, endDate) {
+  const accessToken = await ensureAccessToken();
+
+  const url =
+    `${DEXCOM_BASE}/v3/users/self/egvs?` +
+    new URLSearchParams({
+      startDate: String(startDate),
+      endDate: String(endDate),
+    }).toString();
+
+  const r = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+  });
+
+  const text = await r.text();
+  if (!r.ok) {
+    const err = new Error(text || `Dexcom API request failed (${r.status})`);
+    err.statusCode = r.status;
+    throw err;
+  }
+
+  const data = JSON.parse(text);
+  return Array.isArray(data.records) ? data.records : [];
+}
+
 // 3) Call EGVs endpoint (GET /v3/users/self/egvs) and return latest reading
 app.get("/egvs", async (req, res) => {
   const startDate = req.query.start; // ISO: 2026-01-17T00:00:00
@@ -222,42 +310,76 @@ app.get("/egvs", async (req, res) => {
   if (!startDate || !endDate) return res.status(400).type("text").send("Use ?start=ISO&end=ISO");
 
   try {
-    const accessToken = await ensureAccessToken();
-
-    const url =
-      `${DEXCOM_BASE}/v3/users/self/egvs?` +
-      new URLSearchParams({
-        startDate: String(startDate),
-        endDate: String(endDate),
-      }).toString();
-
-    const r = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-    });
-
-    const text = await r.text();
-    if (!r.ok) return res.status(r.status).type("text").send(text);
-
-    const data = JSON.parse(text);
+    const records = await fetchDexcomEgvsRange(startDate, endDate);
     
     // Get the most recent reading (records are typically sorted by time, newest first)
-    if (!data.records || data.records.length === 0) {
+    if (records.length === 0) {
       return res.status(404).json({ error: 'No glucose readings found' });
     }
 
-    const latestRecord = data.records[0];
-    
-    // Transform to expected format
-    const response = {
-      Glucose: latestRecord.value,
-      Status: getGlucoseStatus(latestRecord.value),
-      Trend: mapDexcomTrend(latestRecord.trend),
-      Time: latestRecord.systemTime,
-    };
-
-    res.json(response);
+    res.json(normalizeEgvsRecord(records[0]));
   } catch (e) {
-    res.status(500).type("text").send(String(e));
+    console.warn("Dexcom /egvs failed, trying fallback API:", String(e));
+    try {
+      const fallbackData = await fetchFallbackJson("/api/cgm");
+      return res.json(normalizeFallbackReading(fallbackData));
+    } catch (fallbackErr) {
+      return res.status(e.statusCode || 500).json({
+        error: "Dexcom fetch failed and fallback API also failed",
+        dexcom_error: String(e),
+        fallback_error: String(fallbackErr),
+      });
+    }
+  }
+});
+
+// 4) Return all EGVs in a range (newest-first from Dexcom, plus normalized fields)
+app.get("/egvs/history", async (req, res) => {
+  const startDate = req.query.start;
+  const endDate = req.query.end;
+  if (!startDate || !endDate) return res.status(400).type("text").send("Use ?start=ISO&end=ISO");
+
+  try {
+    const records = await fetchDexcomEgvsRange(startDate, endDate);
+    res.json({
+      start: String(startDate),
+      end: String(endDate),
+      count: records.length,
+      records: records.map(normalizeEgvsRecord),
+    });
+  } catch (e) {
+    console.warn("Dexcom /egvs/history failed, trying fallback API:", String(e));
+    try {
+      const fallbackHistory = await fetchFallbackJson("/api/cgm/history");
+      if (Array.isArray(fallbackHistory?.records)) {
+        return res.json({
+          ...fallbackHistory,
+          records: fallbackHistory.records.map(normalizeFallbackReading),
+        });
+      }
+
+      // Also support fallback APIs that return a single reading object
+      if (fallbackHistory && (typeof fallbackHistory === "object") && "Glucose" in fallbackHistory) {
+        return res.json({
+          start: String(startDate),
+          end: String(endDate),
+          count: 1,
+          records: [normalizeFallbackReading(fallbackHistory)],
+        });
+      }
+
+      if (!Array.isArray(fallbackHistory?.records)) {
+        return res
+          .status(502)
+          .json({ error: "Fallback API returned unexpected history format" });
+      }
+    } catch (fallbackErr) {
+      return res.status(e.statusCode || 500).json({
+        error: "Dexcom history fetch failed and fallback API also failed",
+        dexcom_error: String(e),
+        fallback_error: String(fallbackErr),
+      });
+    }
   }
 });
 
