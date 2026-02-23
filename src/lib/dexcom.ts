@@ -10,6 +10,9 @@ export type CgmReading = {
 
 export type HistoricalCgmReading = CgmReading;
 
+const DEFAULT_PROXY_CANDIDATES = ['http://localhost:3000', 'http://localhost:3011'] as const;
+const DEFAULT_FALLBACK_APP_BASE = 'https://bloodsuger.vercel.app';
+
 // A function to validate and cast the trend string.
 function toCgmTrend(trend: string): CgmReading['Trend'] {
   const validTrends: CgmReading['Trend'][] = [
@@ -56,6 +59,126 @@ function toCgmTrend(trend: string): CgmReading['Trend'] {
   }
 }
 
+function normalizeTimeString(value: unknown): string {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return new Date().toISOString();
+  }
+
+  const trimmed = value.trim();
+  if (trimmed.includes('T')) return trimmed;
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(trimmed)) {
+    return trimmed.replace(' ', 'T');
+  }
+
+  return trimmed;
+}
+
+function toStatus(value: number, apiStatus: unknown): CgmReading['Status'] {
+  const validStatuses: CgmReading['Status'][] = ['low', 'ok', 'high'];
+  if (typeof apiStatus === 'string' && validStatuses.includes(apiStatus as CgmReading['Status'])) {
+    return apiStatus as CgmReading['Status'];
+  }
+
+  if (value <= 60) return 'low';
+  if (value >= 250) return 'high';
+  return 'ok';
+}
+
+function parseReading(data: any): CgmReading {
+  const glucoseValueRaw = data?.Glucose;
+  const glucoseValue =
+    typeof glucoseValueRaw === 'string' ? parseInt(glucoseValueRaw, 10) : glucoseValueRaw;
+
+  if (typeof glucoseValue !== 'number' || Number.isNaN(glucoseValue)) {
+    console.error('Failed to parse glucose value from API. Received data:', JSON.stringify(data));
+    throw new Error('Invalid glucose value received from API.');
+  }
+
+  return {
+    Glucose: glucoseValue,
+    Status: toStatus(glucoseValue, data?.Status),
+    Trend: toCgmTrend(data?.Trend),
+    Time: normalizeTimeString(data?.Time),
+  };
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0;
+}
+
+function getProxyCandidates() {
+  const envPrimary = process.env.DEXCOM_PROXY_URL?.trim();
+  const extras = (process.env.DEXCOM_PROXY_URLS || '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+
+  return Array.from(
+    new Set([envPrimary, ...extras, ...DEFAULT_PROXY_CANDIDATES].filter(isNonEmptyString))
+  );
+}
+
+function getFallbackBase() {
+  return (process.env.FALLBACK_API_BASE || DEFAULT_FALLBACK_APP_BASE).replace(/\/+$/, '');
+}
+
+async function fetchJsonWithTimeout(url: string, timeoutMs = 7000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+
+    const text = await response.text();
+    let data: any = null;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = text;
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} from ${url}: ${typeof data === 'string' ? data : JSON.stringify(data)}`);
+    }
+
+    return data;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchFromCandidates<T>({
+  candidates,
+  buildUrl,
+  parse,
+}: {
+  candidates: string[];
+  buildUrl: (base: string) => string;
+  parse: (payload: any) => T;
+}): Promise<T> {
+  const errors: string[] = [];
+
+  for (const base of candidates) {
+    const url = buildUrl(base.replace(/\/+$/, ''));
+    try {
+      const payload = await fetchJsonWithTimeout(url);
+      if (payload?.error) {
+        throw new Error(`${url} returned error: ${payload.error}`);
+      }
+      return parse(payload);
+    } catch (err: any) {
+      errors.push(`${url} -> ${err?.message || String(err)}`);
+    }
+  }
+
+  throw new Error(`All CGM sources failed. Tried: ${errors.join(' | ')}`);
+}
+
 /**
  * Fetches the latest CGM reading from the Dexcom proxy API.
  * The proxy handles OAuth and returns a simplified format.
@@ -70,64 +193,18 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
     const startDate = sixHoursAgo.toISOString().split('.')[0];
     const endDate = now.toISOString().split('.')[0];
     
-    // Build URL with query parameters
-    const baseUrl = process.env.DEXCOM_PROXY_URL || 'http://localhost:3000';
-    const url = `${baseUrl}/egvs?start=${startDate}&end=${endDate}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      cache: 'no-store', // Disable caching for real-time data
+    const proxyCandidates = getProxyCandidates();
+    const fallbackBase = getFallbackBase();
+    const latestCandidates = [...proxyCandidates, fallbackBase].filter(isNonEmptyString);
+
+    return await fetchFromCandidates<CgmReading>({
+      candidates: latestCandidates,
+      buildUrl: (base) =>
+        base === fallbackBase
+          ? `${base}/api/cgm`
+          : `${base}/egvs?start=${startDate}&end=${endDate}`,
+      parse: parseReading,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API request failed with status ${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    
-    // The API might not return data if there's an error on its side
-    if (data.error) {
-      throw new Error(`API returned an error: ${data.error}`);
-    }
-
-    const glucoseValueRaw = data.Glucose;
-    const glucoseValue = typeof glucoseValueRaw === 'string' 
-      ? parseInt(glucoseValueRaw, 10) 
-      : glucoseValueRaw;
-
-    if (typeof glucoseValue !== 'number' || isNaN(glucoseValue)) {
-      console.error('Failed to parse glucose value from API. Received data:', JSON.stringify(data));
-      throw new Error('Invalid glucose value received from API.');
-    }
-    
-    // Directly use the status from the API if it's valid, otherwise calculate it as a fallback
-    let status: CgmReading['Status'];
-    const validStatuses: CgmReading['Status'][] = ['low', 'ok', 'high'];
-    if (data.Status && validStatuses.includes(data.Status)) {
-      status = data.Status;
-    } else {
-      console.warn(`Invalid or missing status from API, calculating fallback. Received: ${data.Status}`);
-      if (glucoseValue <= 60) {
-        status = 'low';
-      } else if (glucoseValue >= 250) {
-        status = 'high';
-      } else {
-        status = 'ok';
-      }
-    }
-
-    const reading: CgmReading = {
-      Glucose: glucoseValue,
-      Status: status,
-      Trend: toCgmTrend(data.Trend),
-      Time: data.Time || new Date().toISOString(),
-    };
-    
-    return reading;
 
   } catch (error: any) {
     console.error('Failed to fetch or process live CGM data:', error);
@@ -139,52 +216,36 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
 async function getCgmRange(start: Date, end: Date): Promise<HistoricalCgmReading[]> {
   const startDate = start.toISOString().split('.')[0];
   const endDate = end.toISOString().split('.')[0];
-  const baseUrl = process.env.DEXCOM_PROXY_URL || 'http://localhost:3000';
-  const url = `${baseUrl}/egvs/history?start=${startDate}&end=${endDate}`;
+  const proxyCandidates = getProxyCandidates();
+  const fallbackBase = getFallbackBase();
+  const historyCandidates = [...proxyCandidates, fallbackBase].filter(isNonEmptyString);
 
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
+  return fetchFromCandidates<HistoricalCgmReading[]>({
+    candidates: historyCandidates,
+    buildUrl: (base) =>
+      base === fallbackBase
+        ? `${base}/api/cgm/history`
+        : `${base}/egvs/history?start=${startDate}&end=${endDate}`,
+    parse: (data) => {
+      const rawRecords = Array.isArray(data?.records)
+        ? data.records
+        : data && typeof data === 'object' && 'Glucose' in data
+          ? [data]
+          : [];
+
+      return rawRecords
+        .map((record: any) => {
+          try {
+            return parseReading(record);
+          } catch {
+            return null;
+          }
+        })
+        .filter(
+          (record: HistoricalCgmReading | null): record is HistoricalCgmReading => !!record
+        );
+    },
   });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`History API request failed with status ${response.status}: ${errorText}`);
-  }
-
-  const data = await response.json();
-  const records = Array.isArray(data?.records) ? data.records : [];
-
-  return records
-    .map((record: any) => {
-      const glucoseValueRaw = record.Glucose;
-      const glucoseValue =
-        typeof glucoseValueRaw === 'string'
-          ? parseInt(glucoseValueRaw, 10)
-          : glucoseValueRaw;
-
-      if (typeof glucoseValue !== 'number' || Number.isNaN(glucoseValue)) {
-        return null;
-      }
-
-      const validStatuses: CgmReading['Status'][] = ['low', 'ok', 'high'];
-      const status = validStatuses.includes(record.Status)
-        ? record.Status
-        : glucoseValue <= 60
-          ? 'low'
-          : glucoseValue >= 250
-            ? 'high'
-            : 'ok';
-
-      return {
-        Glucose: glucoseValue,
-        Status: status,
-        Trend: toCgmTrend(record.Trend),
-        Time: record.Time || new Date().toISOString(),
-      } satisfies HistoricalCgmReading;
-    })
-    .filter((record: HistoricalCgmReading | null): record is HistoricalCgmReading => !!record);
 }
 
 /**
