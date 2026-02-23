@@ -2,9 +2,19 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import type { CgmReading } from '@/lib/dexcom';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const CSV_PATH = path.join(DATA_DIR, 'cgm-readings.csv');
 const CSV_HEADER = 'Time,Glucose,Status,Trend\n';
+const LOCAL_DATA_DIR = path.join(process.cwd(), 'data');
+const TMP_DATA_DIR = '/tmp/bloodsuger-data';
+
+function getDataDir() {
+  if (process.env.CGM_DATA_DIR) return process.env.CGM_DATA_DIR;
+  if (process.env.VERCEL || process.env.LAMBDA_TASK_ROOT) return TMP_DATA_DIR;
+  return LOCAL_DATA_DIR;
+}
+
+function getCsvPath() {
+  return path.join(getDataDir(), 'cgm-readings.csv');
+}
 
 type StoredRow = CgmReading;
 
@@ -50,11 +60,13 @@ function parseCsvLine(line: string): string[] {
 }
 
 async function ensureCsvFile() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+  const dataDir = getDataDir();
+  const csvPath = getCsvPath();
+  await fs.mkdir(dataDir, { recursive: true });
   try {
-    await fs.access(CSV_PATH);
+    await fs.access(csvPath);
   } catch {
-    await fs.writeFile(CSV_PATH, CSV_HEADER, 'utf8');
+    await fs.writeFile(csvPath, CSV_HEADER, 'utf8');
   }
 }
 
@@ -78,8 +90,9 @@ function normalizeStoredReading(reading: CgmReading): StoredRow {
 export async function storeCgmReading(reading: CgmReading) {
   const normalized = normalizeStoredReading(reading);
   await ensureCsvFile();
+  const csvPath = getCsvPath();
 
-  const current = await fs.readFile(CSV_PATH, 'utf8');
+  const current = await fs.readFile(csvPath, 'utf8');
   const lines = current.trimEnd().split('\n');
   const lastLine = lines.length > 1 ? lines[lines.length - 1] : null;
 
@@ -97,12 +110,12 @@ export async function storeCgmReading(reading: CgmReading) {
     csvEscape(normalized.Trend),
   ].join(',') + '\n';
 
-  await fs.appendFile(CSV_PATH, row, 'utf8');
+  await fs.appendFile(csvPath, row, 'utf8');
 }
 
 export async function getStoredCgmReadings(): Promise<StoredRow[]> {
   await ensureCsvFile();
-  const content = await fs.readFile(CSV_PATH, 'utf8');
+  const content = await fs.readFile(getCsvPath(), 'utf8');
   const lines = content.split('\n').map((line) => line.trimEnd()).filter(Boolean);
 
   if (lines.length <= 1) return [];
@@ -132,5 +145,5 @@ export async function getStoredCgmReadings(): Promise<StoredRow[]> {
 }
 
 export function getCgmCsvPath() {
-  return CSV_PATH;
+  return getCsvPath();
 }
