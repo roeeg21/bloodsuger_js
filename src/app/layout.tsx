@@ -13,6 +13,13 @@ const rajdhani = Rajdhani({
 export const metadata: Metadata = {
   title: 'CyberHealth Monitor',
   description: 'Track and compare your blood sugar levels.',
+  manifest: '/manifest.webmanifest',
+  themeColor: '#22c55e',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Sugar Monitor',
+  },
 };
 
 export default function RootLayout({
