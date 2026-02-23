@@ -98,6 +98,18 @@ async function fetchFallbackJson(pathname) {
   }
 }
 
+async function fetchFallbackJsonFromPaths(paths) {
+  const errors = [];
+  for (const path of paths) {
+    try {
+      return await fetchFallbackJson(path);
+    } catch (err) {
+      errors.push(String(err));
+    }
+  }
+  throw new Error(`All fallback paths failed: ${errors.join(" | ")}`);
+}
+
 function normalizeFallbackReading(record) {
   if (!record || (typeof record !== "object")) {
     throw new Error("Fallback reading is not an object");
@@ -321,7 +333,7 @@ app.get("/egvs", async (req, res) => {
   } catch (e) {
     console.warn("Dexcom /egvs failed, trying fallback API:", String(e));
     try {
-      const fallbackData = await fetchFallbackJson("/api/cgm");
+      const fallbackData = await fetchFallbackJsonFromPaths(["/api/cgm", "/"]);
       return res.json(normalizeFallbackReading(fallbackData));
     } catch (fallbackErr) {
       return res.status(e.statusCode || 500).json({
@@ -350,7 +362,7 @@ app.get("/egvs/history", async (req, res) => {
   } catch (e) {
     console.warn("Dexcom /egvs/history failed, trying fallback API:", String(e));
     try {
-      const fallbackHistory = await fetchFallbackJson("/api/cgm/history");
+      const fallbackHistory = await fetchFallbackJsonFromPaths(["/api/cgm/history", "/"]);
       if (Array.isArray(fallbackHistory?.records)) {
         return res.json({
           ...fallbackHistory,

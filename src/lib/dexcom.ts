@@ -179,6 +179,30 @@ async function fetchFromCandidates<T>({
   throw new Error(`All CGM sources failed. Tried: ${errors.join(' | ')}`);
 }
 
+async function fetchFromUrls<T>({
+  urls,
+  parse,
+}: {
+  urls: string[];
+  parse: (payload: any) => T;
+}): Promise<T> {
+  const errors: string[] = [];
+
+  for (const url of urls) {
+    try {
+      const payload = await fetchJsonWithTimeout(url);
+      if (payload?.error) {
+        throw new Error(`${url} returned error: ${payload.error}`);
+      }
+      return parse(payload);
+    } catch (err: any) {
+      errors.push(`${url} -> ${err?.message || String(err)}`);
+    }
+  }
+
+  throw new Error(`All CGM sources failed. Tried: ${errors.join(' | ')}`);
+}
+
 /**
  * Fetches the latest CGM reading from the Dexcom proxy API.
  * The proxy handles OAuth and returns a simplified format.
@@ -195,14 +219,14 @@ export async function getLiveCgmReading(): Promise<CgmReading> {
     
     const proxyCandidates = getProxyCandidates();
     const fallbackBase = getFallbackBase();
-    const latestCandidates = [...proxyCandidates, fallbackBase].filter(isNonEmptyString);
+    const latestUrls = [
+      ...proxyCandidates.map((base) => `${base}/egvs?start=${startDate}&end=${endDate}`),
+      `${fallbackBase}/api/cgm`,
+      `${fallbackBase}/`,
+    ];
 
-    return await fetchFromCandidates<CgmReading>({
-      candidates: latestCandidates,
-      buildUrl: (base) =>
-        base === fallbackBase
-          ? `${base}/api/cgm`
-          : `${base}/egvs?start=${startDate}&end=${endDate}`,
+    return await fetchFromUrls<CgmReading>({
+      urls: latestUrls,
       parse: parseReading,
     });
 
@@ -218,14 +242,14 @@ async function getCgmRange(start: Date, end: Date): Promise<HistoricalCgmReading
   const endDate = end.toISOString().split('.')[0];
   const proxyCandidates = getProxyCandidates();
   const fallbackBase = getFallbackBase();
-  const historyCandidates = [...proxyCandidates, fallbackBase].filter(isNonEmptyString);
+  const historyUrls = [
+    ...proxyCandidates.map((base) => `${base}/egvs/history?start=${startDate}&end=${endDate}`),
+    `${fallbackBase}/api/cgm/history`,
+    `${fallbackBase}/`,
+  ];
 
-  return fetchFromCandidates<HistoricalCgmReading[]>({
-    candidates: historyCandidates,
-    buildUrl: (base) =>
-      base === fallbackBase
-        ? `${base}/api/cgm/history`
-        : `${base}/egvs/history?start=${startDate}&end=${endDate}`,
+  return fetchFromUrls<HistoricalCgmReading[]>({
+    urls: historyUrls,
     parse: (data) => {
       const rawRecords = Array.isArray(data?.records)
         ? data.records
