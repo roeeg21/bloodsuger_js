@@ -17,14 +17,29 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background:
-            'radial-gradient(circle at 25% 20%, rgba(34,197,94,0.22), transparent 45%), radial-gradient(circle at 80% 85%, rgba(250,204,21,0.14), transparent 45%), #0d1117',
+          backgroundColor: '#0d1117',
           borderRadius: 96,
           position: 'relative',
           overflow: 'hidden',
           fontFamily: 'system-ui, sans-serif',
         }}
       >
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage:
+              'radial-gradient(circle at 25% 20%, rgba(34,197,94,0.22), transparent 45%)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage:
+              'radial-gradient(circle at 80% 85%, rgba(250,204,21,0.14), transparent 45%)',
+          }}
+        />
         <div
           style={{
             position: 'absolute',
